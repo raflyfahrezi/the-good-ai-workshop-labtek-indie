@@ -36,13 +36,28 @@ Prototype card one-liner (draft, for the team to edit):
 
 | # | Screen | What the journalist does | What AI does (faked) | Human decision point |
 |---|---|---|---|---|
-| 1 | **Bank Informasi** | Adds material in two groups: **Karya Utama** (the draft article) and **Data Mentah** (photos, video, transcripts, research PDFs). Labels each item **Publik** or **Sensitif** | Nothing yet. Every item gets an ID (e.g. `ART-P3`, `TR1-S2`, `FOTO-2`) so later output can point back to it | **Sensitivity label is set by the journalist, never the AI.** Sensitif items are marked "diproses lokal" |
-| 2 | **Brief & Guardrails** | Picks the format (Carousel IG / Naskah Reels / Newsletter), audience, tone, length. Ticks guardrail rules | - | Rules are the journalist's: "Tidak boleh menambah fakta baru", "Kutipan harus persis", "Nama narasumber sensitif disamarkan", "Foto tidak boleh diubah isinya" |
+| 1 | **Bank Informasi** | Adds material in two groups: **Karya Utama** (the draft article) and **Data Mentah** (photos, video, transcripts, research PDFs). Uploads material (dummy upload) and labels each item **Publik** or **Sensitif** | Every item gets an ID (e.g. `ART-P3`, `TR1-S2`, `FOTO-2`) so later output can point back to it. Video is analysed on two tracks: sound and **visual events** (e.g. `VID1-V1`), since not everything is in the audio | **Sensitivity label is set by the journalist, never the AI**, and an upload is only processed after it is labelled (cloud or local). The journalist confirms the AI's visual descriptions against the footage |
+| 2 | **Brief & Guardrails** | Picks the format (Video Reels / Audio / Image Slides), audience, tone, length. Writes guardrail rules as free text (pre-filled examples are editable) | - | Rules are the journalist's: "Tidak boleh menambah fakta baru", "Kutipan harus persis", "Nama narasumber sensitif disamarkan", "Foto tidak boleh diubah isinya" |
 | 3 | **Saran & Masukan AI** | Reads 2-3 angle options and AI feedback on the brief, picks one or edits the brief (loop with step 2) | Proposes angles/hooks, flags brief problems ("materi cukup untuk 7 slide, bukan 10") | Journalist picks the angle |
 | 3b | **Verifikasi Konsep & Naskah** | Reviews the script **line by line**. Clicks a line to see the source passage highlighted. Marks each line Setuju / Ubah / Buang | Writes the script; each line carries source IDs and an **audit status**: 🟢 kutipan ditemukan, 🟡 parafrase (cek makna), 🔴 tidak ada di sumber | **Counter "x dari y baris belum dicek".** "Lanjut" stays disabled until every line is decided |
 | 4 | **Generate Media** | Watches the preview build | Renders the slides (text + photo from the bank) and runs **auto QC**: new facts, quote mismatch, photo used out of context, text too long | - |
 | 5 | **QC oleh Jurnalis** | Reviews the preview with the auto-QC flags. **Setujui** or **Revisi** (with a note, goes back to 3) | - | Final approval |
 | 6 | **Ekspor** | Downloads the content | Produces the files plus a **Jejak Sumber** sheet: every line, its source, its audit status, who approved it | The source trail is for the editor (the "Galih" persona): they can see what AI touched |
+
+## Alignment with the team PRD (IDEO PRD v1, 4 Nov)
+
+The team wrote a PRD for the product, named **IDEO**. The demo follows its workflow, key screens and MVP scope (Image Slides only), within the lo-fi rules above:
+
+- **Dashboard** (screen 01): active project with content status, deadline, last step, activity, other projects.
+- **Content status** (PRD 13.1): Draf, Diproses, Perlu Review, Revisi, Disetujui, Diekspor.
+- **Step 1**: categories, source/credit per file, processing status, one upload that fails with retry.
+- **Step 2**: objective, multi-format (Video Reels and Audio marked as later phase), platform, guideline templates.
+- **Step 3**: concept, outline, feedback and regenerate. **3b**: script with sources, line by line.
+- **Step 4**: per-slide edit and regenerate. Later passes only reprocess changed slides (PRD 6.1).
+- **Step 5**: source verification per slide, revision routed by type (script to 3b, visual to 4, facts to 1), version history.
+- **Step 6**: export format choice, credit, metadata, export history.
+
+Left out on purpose: login, autosave or persistence, creating a real new project, the article editor, and the Content History, My Guidelines and Settings pages (shown disabled in the nav).
 
 ## Why it's built this way (the argument for the room)
 

@@ -1,9 +1,12 @@
 <script>
-  import { script, story } from '../lib/data.js'
-  import { flow, finalSlides, auditInfo, decisionLabel } from '../lib/flow.svelte.js'
+  import { exportFormats, formats, script, story } from '../lib/data.js'
+  import { flow, finalSlides, findSource, auditInfo, decisionLabel, defaultExportFormats, log } from '../lib/flow.svelte.js'
 
   let slides = $derived(finalSlides())
-  let downloaded = $state(false)
+  let chosen = $state(defaultExportFormats())
+  let credit = $state(
+    `Liputan: ${story.author}, ${story.newsroom}. Disusun dengan bantuan AI (IDEO) dan diverifikasi per kalimat oleh jurnalis.`,
+  )
 
   // Jejak Sumber covers every line the AI wrote, including discarded ones, so the editor sees what AI touched.
   let trail = $derived(
@@ -17,13 +20,31 @@
     })),
   )
 
-  let files = $derived([
-    { name: `carousel-slide-01-${String(slides.length).padStart(2, '0')}.png`, note: 'gambar per slide' },
-    { name: 'caption-instagram.txt', note: 'caption + tautan artikel' },
-    { name: 'jejak-sumber.csv', note: 'untuk editor' },
+  const pad = (n) => String(n).padStart(2, '0')
+  let files = $derived(
+    [
+      chosen.png && `image-slide-01-${pad(slides.length)}.png`,
+      chosen.pdf && 'image-slides.pdf',
+      chosen.caption && 'caption.txt',
+      chosen.csv && 'jejak-sumber.csv',
+    ].filter(Boolean),
+  )
+
+  // Metadata attached to the export (PRD FR-39, FR-40)
+  let citedItems = $derived([...new Set(slides.flatMap((s) => s.sources).map((id) => findSource(id)?.item.id))])
+  let sensitiveCited = $derived(citedItems.filter((id) => flow.sensitivity[id] === 'sensitif'))
+  let metadata = $derived([
+    ['Judul liputan', story.title],
+    ['Pemilik karya', story.author],
+    ['Redaksi', story.newsroom],
+    ['Format', formats.find((f) => f.id === 'slides').label + `, ${slides.length} slide`],
+    ['Versi', `v${flow.version}, disetujui jurnalis`],
+    ['Bahan yang dirujuk', citedItems.join(', ')],
+    ['Bahan sensitif dirujuk', sensitiveCited.length ? sensitiveCited.join(', ') + ' (identitas disamarkan)' : 'Tidak ada'],
+    ['Bantuan AI', 'Ya, IDEO (disimulasikan di demo ini)'],
   ])
 
-  // The one real download in the demo: the source trail as CSV, built from the dummy data.
+  // The one real file in the demo: the source trail as CSV, built from the dummy data.
   function downloadCsv() {
     const header = ['Slide', 'Teks akhir', 'Teks AI', 'Sumber', 'Status audit', 'Keputusan', 'Diputuskan oleh']
     const rows = trail.map((r) => [
@@ -42,6 +63,14 @@
     URL.revokeObjectURL(url)
   }
 
+  function exportNow() {
+    if (chosen.csv) downloadCsv()
+    const at = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+    flow.exports.unshift({ at, version: flow.version, files: [...files] })
+    flow.exported = true
+    log(`Diekspor (v${flow.version}): ${files.join(', ')}`)
+  }
+
   function restart() {
     window.location.hash = ''
     window.location.reload()
@@ -49,8 +78,8 @@
 </script>
 
 <div class="screen-head">
-  <h2>6 · Ekspor</h2>
-  <p class="muted">Konten siap diunggah, lengkap dengan Jejak Sumber untuk editor.</p>
+  <h2>6 · Ekspor & Atribusi</h2>
+  <p class="muted">Unduh konten yang sudah disetujui, lengkap dengan credit, metadata karya, dan Jejak Sumber.</p>
   <p class="human">
     <strong>Untuk editor:</strong> Jejak Sumber menunjukkan setiap baris yang ditulis AI, sumbernya, hasil audit, dan
     keputusan jurnalis. Editor tidak perlu mengecek ulang dari nol.
@@ -59,29 +88,46 @@
 
 <div class="cols">
   <section class="card">
-    <h3>Berkas</h3>
-    <ul class="files">
-      {#each files as f (f.name)}
-        <li><code>{f.name}</code> <span class="small muted">{f.note}</span></li>
-      {/each}
-    </ul>
-    <div class="actions">
-      <button class="primary" onclick={() => (downloaded = true)}>Unduh semua</button>
-      <button onclick={downloadCsv}>Unduh Jejak Sumber (.csv)</button>
-    </div>
-    {#if downloaded}
-      <p class="small muted">Simulasi: di demo ini berkas gambar dan caption tidak benar-benar dibuat.</p>
-    {/if}
+    <h3>Format berkas</h3>
+    {#each exportFormats as f (f.id)}
+      <label class="small opt">
+        <input type="checkbox" bind:checked={chosen[f.id]} />
+        {f.label}
+      </label>
+    {/each}
+
+    <label class="field">
+      <span class="small"><strong>Credit</strong> (disertakan di caption dan metadata)</span>
+      <textarea rows="3" bind:value={credit}></textarea>
+    </label>
+
+    <button class="primary" disabled={!flow.approved || files.length === 0} onclick={exportNow}>
+      Unduh {files.length} berkas
+    </button>
+    <p class="small muted">Simulasi: hanya Jejak Sumber .csv yang benar-benar dibuat. Gambar, PDF dan caption tidak.</p>
   </section>
 
   <section class="card">
-    <h3>Keterangan penggunaan AI</h3>
-    <p class="disclosure">
-      Konten ini disusun dengan bantuan AI dari liputan "{story.title}". Setiap kalimat sudah diverifikasi terhadap
-      sumbernya oleh {story.author}.
-    </p>
+    <h3>Metadata karya</h3>
+    <dl class="small">
+      {#each metadata as [key, value] (key)}
+        <dt>{key}</dt>
+        <dd>{value}</dd>
+      {/each}
+      <dt>Credit</dt>
+      <dd>{credit}</dd>
+    </dl>
   </section>
 </div>
+
+<section class="card exports">
+  <h3>Riwayat ekspor</h3>
+  {#each flow.exports as e, i (i)}
+    <p class="small"><span class="muted">{e.at}</span> v{e.version}: {e.files.join(', ')}</p>
+  {:else}
+    <p class="small muted">Belum ada ekspor. Status konten berubah menjadi Diekspor setelah Anda mengunduh.</p>
+  {/each}
+</section>
 
 <h3 class="trail-title">Jejak Sumber</h3>
 <div class="table-wrap">
@@ -132,28 +178,46 @@
     gap: 10px;
   }
 
-  .files {
-    margin: 0;
-    padding-left: 20px;
+  .opt {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .field {
     display: grid;
     gap: 4px;
+  }
+
+  section > button {
+    justify-self: start;
+  }
+
+  dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 4px 12px;
+    margin: 0;
+  }
+
+  dt {
+    color: var(--muted);
+  }
+
+  dd {
+    margin: 0;
+  }
+
+  .exports {
+    margin-top: 20px;
   }
 
   code {
     font: 13px ui-monospace, Consolas, monospace;
   }
 
-  .actions {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
 
-  .disclosure {
-    font-style: italic;
-    border-left: 3px solid var(--border);
-    padding-left: 12px;
-  }
 
   .trail-title {
     margin: 24px 0 10px;

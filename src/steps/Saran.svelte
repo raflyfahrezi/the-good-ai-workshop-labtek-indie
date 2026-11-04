@@ -1,44 +1,43 @@
 <script>
-  import { angles, briefFeedback, formats, guardrails } from '../lib/data.js'
-  import { flow, goTo } from '../lib/flow.svelte.js'
+  import { briefFeedback, formats, outline } from '../lib/data.js'
+  import { flow, goTo, allAngles, regenerateConcept } from '../lib/flow.svelte.js'
 
   // The scripted feedback says the bank holds enough material for 7 slides
   const suggestedLength = 7
 
-  let format = $derived(formats.find((f) => f.id === flow.brief.format))
-  let activeRules = $derived(guardrails.filter((g) => flow.brief.guardrails[g.id]))
+  let formatLabels = $derived(flow.brief.formats.map((id) => formats.find((f) => f.id === id).label).join(', '))
+  let activeRules = $derived(flow.brief.guardrails.filter((r) => r.trim()))
 </script>
 
 <div class="screen-head">
-  <h2>3 · Saran & Masukan AI</h2>
-  <p class="muted">AI membaca brief dan bank informasi, lalu memberi masukan dan beberapa pilihan sudut cerita.</p>
+  <h2>3 · Perencanaan Konten AI: Konsep</h2>
+  <p class="muted">
+    AI menganalisis seluruh bahan di bank informasi dan brief, lalu memberi masukan, beberapa konsep, dan outline.
+  </p>
   <p class="human">
-    <strong>Keputusan jurnalis:</strong> AI hanya mengusulkan. Jurnalis memilih sudut cerita, atau kembali merevisi
-    brief.
+    <strong>Keputusan jurnalis:</strong> AI hanya mengusulkan. Jurnalis memilih dan menyetujui konsep sebelum script
+    dan media dibuat, atau memberi masukan agar AI membuat ulang konsepnya.
   </p>
 </div>
-
-{#if flow.revisionNote}
-  <div class="revision card">
-    <strong>Catatan revisi dari QC jurnalis:</strong>
-    <p>{flow.revisionNote}</p>
-  </div>
-{/if}
 
 <div class="cols">
   <section class="card brief">
     <h3>Brief saat ini</h3>
     <dl class="small">
+      <dt>Tujuan</dt>
+      <dd>{flow.brief.objective}</dd>
       <dt>Format</dt>
-      <dd>{format.label}</dd>
+      <dd>{formatLabels}</dd>
+      <dt>Platform</dt>
+      <dd>{flow.brief.platforms.join(', ') || '-'}</dd>
       <dt>Audiens</dt>
       <dd>{flow.brief.audience}</dd>
-      <dt>Nada</dt>
+      <dt>Tone</dt>
       <dd>{flow.brief.tone}</dd>
       <dt>Jumlah slide</dt>
       <dd>{flow.brief.length}</dd>
-      <dt>Guardrails</dt>
-      <dd>{activeRules.length} dari {guardrails.length} aktif</dd>
+      <dt>Guideline</dt>
+      <dd>{activeRules.length} aturan dari jurnalis</dd>
     </dl>
     <button onclick={() => goTo(1)}>← Revisi brief</button>
   </section>
@@ -58,10 +57,10 @@
   </section>
 </div>
 
-<h3 class="angles-title">Pilih sudut cerita</h3>
+<h3 class="section-title">Pilih konsep</h3>
 <div class="angles">
-  {#each angles as a (a.id)}
-    <button class="angle card" aria-pressed={flow.angle === a.id} onclick={() => (flow.angle = a.id)}>
+  {#each allAngles() as a (a.id)}
+    <button class="angle card" class:fresh={a.id === 'berimbang'} aria-pressed={flow.angle === a.id} onclick={() => (flow.angle = a.id)}>
       <span class="small muted">{a.title}</span>
       <strong>"{a.hook}"</strong>
       {#if flow.angle === a.id}<span class="small picked">✓ Dipilih jurnalis</span>{/if}
@@ -69,13 +68,38 @@
   {/each}
 </div>
 
-<style>
-  .revision {
-    border-color: var(--human);
-    background: var(--human-bg);
-    margin-bottom: 16px;
-  }
+<div class="card regen">
+  <label class="field">
+    <span class="small"><strong>Belum cocok? Beri masukan ke AI</strong></span>
+    <textarea
+      rows="2"
+      bind:value={flow.conceptFeedback}
+      placeholder="Contoh: buat versi yang lebih berimbang, tampilkan semua pihak"
+      disabled={flow.conceptRegenerated}
+    ></textarea>
+  </label>
+  {#if flow.regeneratingConcept}
+    <p class="small muted">… AI membuat ulang konsep dari masukan Anda. Konsep yang sudah ada dipertahankan.</p>
+  {:else if flow.conceptRegenerated}
+    <p class="small ok">✓ Konsep baru ditambahkan dari masukan Anda.</p>
+  {:else}
+    <button disabled={!flow.conceptFeedback.trim()} onclick={regenerateConcept}>↻ Generate ulang konsep</button>
+  {/if}
+</div>
 
+{#if flow.angle}
+  <h3 class="section-title">Outline</h3>
+  <div class="card">
+    <ol class="outline">
+      {#each outline as o (o.slides)}
+        <li><span class="chip">Slide {o.slides}</span> <strong>{o.part}:</strong> {o.text}</li>
+      {/each}
+    </ol>
+    <p class="small muted">Script lengkap per baris, beserta sumbernya, diperiksa di langkah 3b.</p>
+  </div>
+{/if}
+
+<style>
   .cols {
     display: grid;
     grid-template-columns: 1fr 1.4fr;
@@ -120,13 +144,13 @@
     font-weight: 600;
   }
 
-  .angles-title {
+  .section-title {
     margin: 24px 0 10px;
   }
 
   .angles {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 12px;
   }
 
@@ -135,6 +159,11 @@
     gap: 6px;
     text-align: left;
     align-content: start;
+  }
+
+  .angle.fresh {
+    border-style: dashed;
+    border-color: var(--accent);
   }
 
   .angle[aria-pressed='true'] {
@@ -147,9 +176,28 @@
     font-weight: 600;
   }
 
+  .regen {
+    margin-top: 12px;
+    display: grid;
+    gap: 8px;
+    justify-items: start;
+  }
+
+  .field {
+    display: grid;
+    gap: 4px;
+    width: 100%;
+  }
+
+  .outline {
+    margin: 0 0 8px;
+    padding-left: 20px;
+    display: grid;
+    gap: 6px;
+  }
+
   @media (max-width: 760px) {
-    .cols,
-    .angles {
+    .cols {
       grid-template-columns: 1fr;
     }
   }

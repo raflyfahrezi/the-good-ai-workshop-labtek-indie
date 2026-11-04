@@ -6,6 +6,7 @@
   let editingId = $state(null)
   let draft = $state('')
   let panel = $state()
+  let focusId = $state(null) // source chip the journalist clicked, if any
 
   let selected = $derived(script.find((l) => l.id === selectedId))
   let openCount = $derived(script.filter((l) => !flow.decisions[l.id]).length)
@@ -26,11 +27,16 @@
     return groups
   })
 
-  // Bring the highlighted passage into view whenever another line is selected
+  // Bring the clicked source (or the first highlighted passage) into view whenever the selection changes.
+  // scrollIntoView moves both the panel and the page, since the panel is not stuck yet near the top of the page.
+  let firstRun = true
   $effect(() => {
-    selectedId
-    const hit = panel?.querySelector('.hit')
-    panel?.scrollTo({ top: hit ? hit.offsetTop - 120 : 0, behavior: 'smooth' })
+    selectedId, focusId
+    // Don't move the page when the screen first opens
+    if (firstRun) return void (firstRun = false)
+    const hit = panel?.querySelector(focusId ? `[data-src="${focusId}"]` : '.hit')
+    if (hit) hit.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    else panel?.scrollTo({ top: 0, behavior: 'smooth' })
   })
 
   function decide(line, decision) {
@@ -54,9 +60,9 @@
 </script>
 
 <div class="screen-head">
-  <h2>3b · Verifikasi Konsep & Naskah</h2>
+  <h2>3b · Perencanaan Konten AI: Script & Sumber</h2>
   <p class="muted">
-    AI menulis naskah carousel dari bank informasi. Setiap baris membawa ID sumber dan warna hasil audit otomatis.
+    AI menulis naskah Image Slides dari bank informasi. Setiap baris membawa ID sumber dan warna hasil audit otomatis.
     Klik baris atau chip sumber untuk melihat kutipan aslinya.
   </p>
   <p class="human">
@@ -105,7 +111,7 @@
             <button onclick={() => (editingId = null)}>Batal</button>
           </div>
         {:else}
-          <button class="text" onclick={() => (selectedId = line.id)}>
+          <button class="text" onclick={() => ((selectedId = line.id), (focusId = null))}>
             {flow.edits[line.id] ?? line.text}
           </button>
           {#if flow.edits[line.id]}
@@ -116,7 +122,11 @@
         <div class="sources small">
           <span class="muted">Sumber:</span>
           {#each line.sources as id (id)}
-            <button class="chip" onclick={() => (selectedId = line.id)}>{id}</button>
+            <button
+              class="chip"
+              class:focused={line.id === selectedId && focusId === id}
+              onclick={() => ((selectedId = line.id), (focusId = id))}>{id}</button
+            >
           {:else}
             <span class="chip none">tanpa sumber</span>
           {/each}
@@ -146,7 +156,7 @@
     <p class="quote">"{flow.edits[selected.id] ?? selected.text}"</p>
 
     {#each panelGroups as group (group.item.id)}
-      <div class="doc">
+      <div class="doc" data-src={group.item.id}>
         <div class="doc-head">
           <span class="chip">{group.item.id}</span>
           <span class="badge {flow.sensitivity[group.item.id]}">{flow.sensitivity[group.item.id]}</span>
@@ -161,13 +171,21 @@
             <p class="small muted">Merujuk ke seluruh dokumen.</p>
           {/if}
           {#each group.item.parts as part (part.id)}
-            <p class="part" class:hit={group.cited.includes(part.id)}>
+            <p class="part" class:hit={group.cited.includes(part.id)} data-src={part.id}>
               <span class="chip">{part.id}</span>
+              {#if part.kind}<span class="small kind">{part.kind === 'visual' ? '👁 Visual' : '🔊 Suara'}</span>{/if}
               {#if part.time}<span class="small muted">{part.time}</span>{/if}
               {#if part.page}<span class="small muted">hlm. {part.page}</span>{/if}
               {part.text}
             </p>
           {/each}
+          {#if group.item.type === 'video'}
+            <p class="small vcheck" class:ok={flow.videoChecked[group.item.id]}>
+              {flow.videoChecked[group.item.id]
+                ? '✓ Deskripsi visual sudah dicocokkan jurnalis dengan rekaman.'
+                : '⚠ Deskripsi visual dibuat AI dan belum dicocokkan dengan rekaman.'}
+            </p>
+          {/if}
         {:else}
           <div class="media hit">[{group.item.type}] {group.item.label}</div>
         {/if}
@@ -317,6 +335,12 @@
     padding: 4px 6px;
   }
 
+  button.chip.focused {
+    border-color: var(--accent);
+    background: var(--accent-bg);
+    color: var(--accent);
+  }
+
   button.chip:hover {
     border-color: var(--accent);
     color: var(--accent);
@@ -389,6 +413,11 @@
     gap: 6px;
   }
 
+  /* Keep scrolled-to sources clear of the sticky footer */
+  [data-src] {
+    scroll-margin: 40px 0 90px;
+  }
+
   .doc-head {
     display: flex;
     gap: 8px;
@@ -406,6 +435,20 @@
     background: #fff1a8;
     color: var(--text);
     box-shadow: inset 3px 0 0 #e0b400;
+  }
+
+  .kind {
+    font-weight: 600;
+    color: var(--human);
+  }
+
+  .vcheck {
+    color: var(--kuning);
+    font-weight: 600;
+  }
+
+  .vcheck.ok {
+    color: var(--hijau);
   }
 
   .media {

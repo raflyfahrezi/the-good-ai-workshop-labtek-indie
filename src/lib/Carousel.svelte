@@ -2,14 +2,20 @@
   import { story } from './data.js'
   import { findSource, flagIcon } from './flow.svelte.js'
 
-  let { slides, flags = [] } = $props()
+  // actions: optional snippet rendered under each slide (edit, regenerate, sources)
+  // fresh: IDs of slides reprocessed in the latest generation; busy: IDs being regenerated right now
+  let { slides, flags = [], actions, fresh = [], busy = {} } = $props()
+
+  // "Regenerate slide" cycles through a few layouts
+  const layouts = ['a', 'b', 'c']
 </script>
 
 <div class="carousel">
   {#each slides as slide (slide.id)}
     {@const slideFlags = flags.filter((f) => f.lineId === slide.id)}
     <figure>
-      <div class="slide">
+      <div class="slide layout-{layouts[slide.variant % layouts.length]}" class:busy={busy[slide.id]}>
+        {#if fresh.includes(slide.id)}<span class="fresh">baru diproses</span>{/if}
         {#if slide.visual}
           <div class="visual">[{slide.visual}] {findSource(slide.visual).item.label}</div>
         {/if}
@@ -18,10 +24,12 @@
           <span>{story.newsroom}</span>
           <span>{slide.n}/{slides.length}</span>
         </div>
+        {#if busy[slide.id]}<div class="overlay small">… AI membuat ulang slide ini</div>{/if}
       </div>
       {#each slideFlags as flag, i (i)}
         <figcaption class="flag {flag.level}">{flagIcon[flag.level]} {flag.text}</figcaption>
       {/each}
+      {@render actions?.(slide)}
     </figure>
   {/each}
 </div>
@@ -41,6 +49,7 @@
   }
 
   .slide {
+    position: relative;
     aspect-ratio: 4 / 5;
     background: #fff;
     border: 1px solid var(--border);
@@ -49,6 +58,53 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+  }
+
+  /* Layout b: text above the visual */
+  .layout-b .visual {
+    order: 2;
+  }
+  .layout-b .foot {
+    order: 3;
+  }
+
+  /* Layout c: dark card */
+  .layout-c {
+    background: #1d2b3a;
+    color: #fff;
+  }
+  .layout-c .visual {
+    background: #2c3e50;
+    border-color: #4a5d70;
+    color: #c9d4de;
+  }
+  .layout-c .foot {
+    color: #9fb0c0;
+  }
+
+  .busy {
+    opacity: 0.5;
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .fresh {
+    position: absolute;
+    top: -8px;
+    right: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--accent);
+    color: #fff;
+    padding: 1px 8px;
+    border-radius: 999px;
   }
 
   .visual {
