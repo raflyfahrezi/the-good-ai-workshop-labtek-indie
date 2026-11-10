@@ -32,6 +32,12 @@ export function loadTemplate(id) {
   log(`Template guideline dimuat: ${t.label}`)
 }
 
+// The template whose rules the active project's guideline currently matches exactly, if any
+export function activeTemplateId() {
+  const rules = activeRules()
+  return guidelineTemplates.find((t) => t.rules.length === rules.length && t.rules.every((r, i) => r === rules[i]))?.id ?? null
+}
+
 export function togglePlatform(p) {
   const list = flow.brief.platforms
   if (list.includes(p)) list.splice(list.indexOf(p), 1)

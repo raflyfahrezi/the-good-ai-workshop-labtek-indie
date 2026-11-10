@@ -217,20 +217,3 @@ select {
   font-size: 12px;
 }
 
-/* "Keputusan jurnalis" callout: shows on every screen where the human checks or decides */
-.human {
-  border: 1.5px dashed var(--border);
-  background: var(--card);
-  padding: 8px 12px;
-  font-size: 13px;
-}
-
-.human strong {
-  color: var(--human);
-}
-
-.screen-head {
-  margin-bottom: 14px;
-  display: grid;
-  gap: 6px;
-}

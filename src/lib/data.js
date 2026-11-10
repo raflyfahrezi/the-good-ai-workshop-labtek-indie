@@ -74,10 +74,24 @@ export const otherProjects = [
   },
 ]
 
-// Riwayat Konten: earlier exports from other projects. Display only.
+// Riwayat Konten: earlier exports of other projects, newest first. All fictional.
 export const contentHistory = [
-  { content: 'Harga Cabai Naik Jelang Musim Hujan, Image Slides', format: 'PNG ×7', status: 'Diekspor', date: '28 Okt 2026' },
-  { content: 'Harga Cabai Naik Jelang Musim Hujan, Image Slides', format: 'PDF', status: 'Gagal', date: '28 Okt 2026' },
+  {
+    title: 'Harga Cabai Naik Jelang Musim Hujan', desk: 'Ekonomi', format: 'Image Slides', version: 2,
+    files: ['image-slide-01-07.png', 'caption.txt', 'jejak-sumber.csv'], status: 'Diekspor', date: '28 Okt 2026', at: '16.10',
+  },
+  {
+    title: 'Harga Cabai Naik Jelang Musim Hujan', desk: 'Ekonomi', format: 'Image Slides', version: 2,
+    files: ['image-slides.pdf'], status: 'Gagal', date: '28 Okt 2026', at: '16.08', error: 'Render PDF terhenti di slide 5.',
+  },
+  {
+    title: 'Harga Cabai Naik Jelang Musim Hujan', desk: 'Ekonomi', format: 'Image Slides', version: 1,
+    files: ['image-slide-01-08.png', 'jejak-sumber.csv'], status: 'Diekspor', date: '27 Okt 2026', at: '11.40',
+  },
+  {
+    title: 'Nelayan Muara Gembong Beralih ke Rumput Laut', desk: 'Ekonomi', format: 'Image Slides', version: 1,
+    files: ['image-slide-01-06.png', 'caption.txt', 'jejak-sumber.csv'], status: 'Diekspor', date: '21 Okt 2026', at: '09.25',
+  },
 ]
 
 // Step 1: Bank Informasi. Every item has an ID so output can point back to it.
