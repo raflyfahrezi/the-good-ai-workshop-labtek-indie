@@ -1,23 +1,21 @@
-// Shared demo state. Lives in memory only: a page reload resets the demo.
+// Shared demo state. Lives in memory only: a reload keeps the screen (from the URL) but resets the data.
 import {
-  angles,
   autoQcFlags,
   bank,
   defaultBrief,
   exportFormats,
   guardrails,
-  regeneratedAngle,
   script,
   slideVisuals,
   uploadSamples,
 } from './data.js'
+import { hrefFor, hrefForStep, parse, setHash } from './router.js'
 
-// Workflow stages from the PRD (section 6). AI Content Planning is split into concept (3) and script (3b).
+// Workflow stages from the PRD (section 6). The brief goes straight to the script: no separate concept step.
 export const steps = [
   { id: '1', label: 'Bank Informasi' },
   { id: '2', label: 'Brief & Guideline' },
-  { id: '3', label: 'Konsep AI' },
-  { id: '3b', label: 'Script & Sumber' },
+  { id: '3', label: 'Script & Sumber' },
   { id: '4', label: 'Generate Media' },
   { id: '5', label: 'QC Editorial' },
   { id: '6', label: 'Ekspor & Atribusi' },
@@ -27,7 +25,7 @@ export const stepIndex = (id) => steps.findIndex((s) => s.id === id)
 
 // PRD 6.1: a revision goes back to the stage that owns the problem, not to the start
 export const revisionRoutes = [
-  { id: 'script', label: 'Script atau narasi', target: '3b' },
+  { id: 'script', label: 'Script atau narasi', target: '3' },
   { id: 'visual', label: 'Visual atau layout', target: '4' },
   { id: 'fakta', label: 'Fakta atau sumber', target: '1' },
 ]
@@ -35,7 +33,7 @@ export const revisionRoutes = [
 const allItems = [...bank.karyaUtama, ...bank.dataMentah]
 
 export const flow = $state({
-  view: 'dashboard', // 'dashboard' | 'project'
+  view: 'dashboard', // 'dashboard' | 'history' | 'guidelines' | 'settings' | 'project', mirrored in the URL hash
   step: 0,
   furthest: 0,
   // Sensitivity is the journalist's call, so it is editable state seeded from data.js
@@ -43,10 +41,7 @@ export const flow = $state({
   brief: { ...defaultBrief, guardrails: [...guardrails] },
   uploads: [], // dummy uploads added in step 1, status 'gagal' | 'label' | 'proses' | 'siap'
   videoChecked: {}, // video id -> journalist matched the AI's visual descriptions against the footage
-  angle: null,
-  conceptFeedback: '',
-  conceptRegenerated: false,
-  regeneratingConcept: false,
+  scriptReady: false, // the AI writes the script the first time step 3 opens
   decisions: {}, // line id -> 'setuju' | 'ubah' | 'buang'
   edits: {}, // line id -> text written by the journalist
   generated: {}, // line id -> signature of the slide at its last generation
@@ -61,36 +56,61 @@ export const flow = $state({
   history: [], // { at, text }, newest first
 })
 
-// Presenter shortcut: open the page with #3b (or any step id) to jump straight to that screen.
-const jump = steps.findIndex((s) => '#' + s.id === window.location.hash)
-if (jump >= 0) {
-  flow.view = 'project'
-  flow.step = jump
-  flow.furthest = jump
-}
-
 const now = () => new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
 
 export function log(text) {
   flow.history.unshift({ at: now(), text })
 }
 
-export function goTo(index) {
+// Navigation. The URL hash is the address of each screen (see router.js); these helpers update
+// the state and the hash together, and the hashchange listener below handles back/forward and typed URLs.
+
+function showView(view) {
+  flow.view = view
+  window.scrollTo({ top: 0 })
+}
+
+function showStep(index) {
   flow.view = 'project'
   flow.step = index
   flow.furthest = Math.max(flow.furthest, index)
   window.scrollTo({ top: 0 })
 }
 
-export function allAngles() {
-  return flow.conceptRegenerated ? [...angles, regeneratedAngle] : angles
+// Open a sidebar page that is not the project flow ('dashboard' | 'history' | 'guidelines' | 'settings')
+export function openView(view) {
+  showView(view)
+  setHash(hrefFor(view))
 }
 
-// "Lanjut" in the shell. The concept and script approvals are journalist decisions, so they go in the history.
+export function goTo(index) {
+  showStep(index)
+  setHash(hrefForStep(steps[index].id))
+}
+
+// Any step can be opened by URL, so the presenter can jump straight to a screen (#/project/3)
+function applyRoute() {
+  const route = parse(window.location.hash)
+  const index = route?.view === 'project' ? stepIndex(route.stepId) : -1
+  if (index >= 0) {
+    showStep(index)
+    setHash(hrefForStep(route.stepId), { replace: true }) // tidy '#3' into '#/project/3'
+  } else if (route && route.view !== 'project') {
+    showView(route.view)
+  } else {
+    showView('dashboard')
+    setHash(hrefFor('dashboard'), { replace: true })
+  }
+}
+
+applyRoute()
+window.addEventListener('hashchange', applyRoute)
+
+// "Lanjut" in the shell. The brief and script approvals are journalist decisions, so they go in the history.
 export function next() {
   const id = steps[flow.step].id
-  if (id === '3') log(`Konsep disetujui: "${allAngles().find((a) => a.id === flow.angle).hook}"`)
-  if (id === '3b') {
+  if (id === '2') log(`Brief dikirim dengan ${flow.brief.guardrails.filter((r) => r.trim()).length} aturan guideline`)
+  if (id === '3') {
     const count = (d) => script.filter((l) => flow.decisions[l.id] === d).length
     log(`Script disetujui: ${count('setuju')} setuju, ${count('ubah')} diubah, ${count('buang')} dibuang`)
   }
@@ -159,15 +179,6 @@ export function setSensitivity(id, level) {
       log(`${upload.id} diunggah dan dianalisis (${level})`)
     }
   }, 700)
-}
-
-export function regenerateConcept() {
-  flow.regeneratingConcept = true
-  setTimeout(() => {
-    flow.regeneratingConcept = false
-    flow.conceptRegenerated = true
-    log(`Konsep digenerate ulang dari masukan jurnalis: "${flow.conceptFeedback.trim()}"`)
-  }, 1500)
 }
 
 // Resolve a source ID ('ART', 'ART-P3', 'FOTO-1') to its bank item and the cited part, if any.

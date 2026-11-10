@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IDEO – Low-fi Prototype</title>
+<style>
+:root{--bg:#f4f4f2;--sf:#fff;--ln:#999;--tx:#222;--mu:#777;--fl:#e6e6e3;--ac:#222;--ok:#dfe9df;--wn:#f1e6c9;--er:#eed6d6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1c1b;--sf:#262625;--ln:#777;--tx:#eee;--mu:#9a9a97;--fl:#363634;--ac:#eee;--ok:#2f3d2f;--wn:#4a4029;--er:#4a2d2d;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1c1c1b;--sf:#262625;--ln:#777;--tx:#eee;--mu:#9a9a97;--fl:#363634;--ac:#eee;--ok:#2f3d2f;--wn:#4a4029;--er:#4a2d2d;color-scheme:dark}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font:14px/1.45 "Segoe UI",Helvetica,Arial,sans-serif}
+.app{display:flex;min-height:100vh}
+nav{width:190px;border-right:1.5px solid var(--ln);padding:14px;background:var(--sf);flex:none}
+.logo{font-weight:700;letter-spacing:2px;border:1.5px solid var(--ln);padding:6px 10px;display:inline-block;margin-bottom:14px}
+nav a{display:block;padding:8px 10px;border:1.5px dashed transparent;cursor:pointer;margin-bottom:4px}
+nav a.on{border-color:var(--ln);background:var(--fl);font-weight:600}
+main{flex:1;min-width:0;padding:18px 22px}
+h1{font-size:20px;margin:0 0 4px}h2{font-size:15px;margin:0 0 8px}.mu{color:var(--mu);font-size:12px}
+.box{border:1.5px solid var(--ln);background:var(--sf);padding:12px;margin-bottom:12px}
+.dash{border-style:dashed}
+.grid{display:grid;gap:12px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.btn{border:1.5px solid var(--ln);background:var(--sf);color:var(--tx);padding:7px 12px;cursor:pointer;font:inherit}
+.btn.p{background:var(--ac);color:var(--bg)}.btn[disabled]{opacity:.4;cursor:not-allowed}
+.chip{display:inline-block;border:1.5px solid var(--ln);padding:1px 8px;font-size:11px;border-radius:10px;background:var(--fl)}
+.chip.ok{background:var(--ok)}.chip.wn{background:var(--wn)}.chip.er{background:var(--er)}
+.ph{background:repeating-linear-gradient(45deg,var(--fl),var(--fl) 8px,transparent 8px,transparent 16px);border:1.5px solid var(--ln);display:flex;align-items:center;justify-content:center;color:var(--mu);font-size:12px;text-align:center}
+.stepper{display:flex;gap:0;margin-bottom:14px;overflow-x:auto}
+.stepper a{flex:1;min-width:110px;border:1.5px solid var(--ln);padding:6px 8px;text-align:center;cursor:pointer;margin-left:-1.5px;background:var(--sf);font-size:12px}
+.stepper a.on{background:var(--ac);color:var(--bg)}
+.scr{display:none}.scr.on{display:block}
+input,select,textarea{width:100%;border:1.5px solid var(--ln);background:var(--sf);color:var(--tx);padding:7px;font:inherit;margin:3px 0 9px}
+label{font-size:12px;color:var(--mu)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.sp{justify-content:space-between}
+.file{display:flex;gap:10px;align-items:center;border-bottom:1px dashed var(--ln);padding:7px 0}
+.file .ph{width:42px;height:42px;flex:none}
+.hl{background:var(--wn);border-bottom:2px dotted var(--ln);cursor:pointer;padding:0 2px}
+.slides{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px}
+.slide{width:150px;flex:none;aspect-ratio:4/5;border:1.5px solid var(--ln);background:var(--sf);padding:8px;cursor:pointer;display:flex;flex-direction:column;gap:6px}
+.slide.on{outline:3px solid var(--ac)}
+.slide .ph{flex:1}
+.note{border:1.5px dashed var(--ln);padding:8px;font-size:12px;color:var(--mu);margin-bottom:12px}
+.seg{display:inline-flex;flex:none}.seg button{border:1.5px solid var(--ln);background:var(--sf);color:var(--mu);padding:2px 8px;font:inherit;font-size:11px;cursor:pointer}.seg button+button{margin-left:-1.5px}.seg button.on{color:var(--tx);font-weight:600}.seg button.on.pub{background:var(--ok)}.seg button.on.sen{background:var(--er)}
+table{width:100%;border-collapse:collapse}td,th{border:1px solid var(--ln);padding:6px;text-align:left;font-size:13px}
+@media(max-width:720px){.app{flex-direction:column}nav{width:auto;display:flex;overflow-x:auto;gap:4px;border-right:0;border-bottom:1.5px solid var(--ln)}nav .logo{margin:0 6px 0 0}nav a{white-space:nowrap;margin:0}.g2,.g3,.g4{grid-template-columns:1fr}main{padding:14px}}
+</style></head><body>
+<div class="app">
+<nav><div class="logo">IDEO</div>
+<a data-n="dash" class="on">Dashboard</a><a data-n="proj">My Projects</a><a data-n="hist">Content History</a><a data-n="guide">My Guidelines</a><a data-n="set">Settings</a>
+<div class="mu" style="margin-top:14px">Low-fidelity · klik elemen untuk menjelajah</div></nav>
+<main>
+
+<!-- DASHBOARD -->
+<section class="scr on" id="dash">
+<div class="row sp"><div><h1>Halo, Faris</h1><div class="mu">Ringkasan project dan status pekerjaan</div></div><button class="btn p" data-go="bank">+ Project liputan baru</button></div><br>
+<div class="grid g4">
+<div class="box"><div class="mu">Project aktif</div><h1>3</h1></div>
+<div class="box"><div class="mu">Needs Review</div><h1>2</h1></div>
+<div class="box"><div class="mu">Approved</div><h1>5</h1></div>
+<div class="box"><div class="mu">Deadline terdekat</div><h1>Besok</h1></div></div>
+<div class="box"><h2>Recent projects</h2>
+<table><tr><th>Project</th><th>Tahap</th><th>Status</th><th>Deadline</th></tr>
+<tr><td><a href="#" data-go="bank">Banjir Bandung Selatan</a></td><td>Editorial QC</td><td><span class="chip wn">Needs Review</span></td><td>5 Nov</td></tr>
+<tr><td>Harga Beras Naik</td><td>AI Planning</td><td><span class="chip">Draft</span></td><td>8 Nov</td></tr>
+<tr><td>Sidang Korupsi Dana Desa</td><td>Export</td><td><span class="chip ok">Approved</span></td><td>–</td></tr></table></div>
+<div class="box dash"><h2>Quick actions</h2><div class="row"><button class="btn" data-go="bank">Upload bahan liputan</button><button class="btn" data-go="plan">Lanjutkan project terakhir</button><button class="btn" data-n="guide">Buka guidelines</button></div></div>
+</section>
+
+<!-- PROJECT WORKSPACE -->
+<section class="scr" id="ws">
+<div class="row sp"><div><h1 id="pt">Banjir Bandung Selatan</h1><div class="mu">Autosave aktif · disimpan baru saja</div></div><span class="chip" id="st">Draft</span></div><br>
+<div class="stepper" id="stp"></div>
+<div id="stage"></div>
+</section>
+
+<section class="scr" id="proj"><h1>My Projects</h1><br><div class="grid g3">
+<div class="box" style="cursor:pointer" data-go="bank"><div class="ph" style="height:80px">cover</div><h2 style="margin-top:8px">Banjir Bandung Selatan</h2><span class="chip wn">Needs Review</span></div>
+<div class="box"><div class="ph" style="height:80px">cover</div><h2 style="margin-top:8px">Harga Beras Naik</h2><span class="chip">Draft</span></div>
+<div class="box dash" style="cursor:pointer" data-go="bank"><div class="ph" style="height:80px">+</div><h2 style="margin-top:8px">Project baru</h2></div></div></section>
+
+<section class="scr" id="hist"><h1>Content History</h1><div class="mu">Riwayat konten dan status export</div><br>
+<table><tr><th>Konten</th><th>Format</th><th>Status</th><th>Tanggal</th></tr>
+<tr><td>Sidang Dana Desa – carousel</td><td>PNG ×8</td><td><span class="chip ok">Exported</span></td><td>2 Nov</td></tr>
+<tr><td>Harga Beras – carousel</td><td>PDF</td><td><span class="chip er">Failed</span> <button class="btn">Retry</button></td><td>1 Nov</td></tr></table></section>
+
+<section class="scr" id="guide"><h1>My Guidelines</h1><div class="mu">Template dan custom guidelines</div><br><div class="grid g2">
+<div class="box"><h2>Template: Carousel IG berita</h2><div class="mu">Hook jelas, 1 klaim per slide, sumber di slide akhir</div></div>
+<div class="box"><h2>Custom: Gaya redaksi</h2><div class="mu">Kutipan narasumber tidak boleh diubah</div></div></div><button class="btn">+ Guideline baru</button></section>
+
+<section class="scr" id="set"><h1>Settings</h1><br><div class="grid g2">
+<div class="box"><h2>Profil</h2><div class="ph" style="height:50px">form profil</div></div>
+<div class="box"><h2>Keamanan</h2><div class="ph" style="height:50px">password · 2FA</div></div>
+<div class="box"><h2>Preferensi</h2><div class="ph" style="height:50px">bahasa · tema</div></div>
+<div class="box"><h2>Pengelolaan data</h2><div class="mu">Retensi, hapus project, izin pelatihan model (opt-in)</div></div></div></section>
+</main></div>
+
+<script>
+const S=['Information Bank','Brief','AI Planning','Media Generation','Editorial QC','Export'];
+const K=['bank','brief','plan','media','qc','export'];
+let cur=0,approved=false,slide=1,hl=false;
+let sens={artikel:'publik',foto:'publik',bpbd:'publik',wawancara:'sensitif'};
+function flag(k){const v=sens[k];return `<span class="seg"><button class="pub ${v==='publik'?'on':''}" onclick="sens['${k}']='publik';render()">Publik</button><button class="sen ${v==='sensitif'?'on':''}" onclick="sens['${k}']='sensitif';render()">Sensitif</button></span>`}
+function loc(k){return sens[k]==='sensitif'?' · 🔒 diproses lokal':''}
+const $=s=>document.querySelector(s);
+function show(id){document.querySelectorAll('.scr').forEach(e=>e.classList.toggle('on',e.id===id));
+ document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('on',a.dataset.n===id||(id==='ws'&&a.dataset.n==='proj')))}
+function go(k){cur=K.indexOf(k);show('ws');render()}
+const T={
+bank:()=>`<div class="grid g2"><div>
+<div class="box dash" style="text-align:center;padding:26px"><h2>Tarik file ke sini</h2><div class="mu">Foto, video, PDF, dokumen · artikel utama</div><br><button class="btn">Pilih file</button></div>
+<div class="box"><h2>File (4)</h2>
+<div class="note" style="margin:8px 0">Label Publik / Sensitif ditentukan jurnalis, bukan AI. Publik boleh diproses AI cloud, Sensitif hanya diproses model lokal.</div>
+<div class="file"><div class="ph">PDF</div><div style="flex:1">Artikel utama.docx<div class="mu">Kategori: Artikel utama${loc('artikel')}</div></div>${flag('artikel')}<span class="chip ok">Siap</span></div>
+<div class="file"><div class="ph">IMG</div><div style="flex:1">foto-lokasi-01.jpg<div class="mu">Kategori: Foto${loc('foto')}</div></div>${flag('foto')}<span class="chip ok">Siap</span></div>
+<div class="file"><div class="ph">PDF</div><div style="flex:1">data-BPBD.pdf<div class="mu">Kategori: Dokumen${loc('bpbd')}</div></div>${flag('bpbd')}<span class="chip wn">Menganalisis… 60%</span></div>
+<div class="file"><div class="ph">VID</div><div style="flex:1">wawancara.mp4<div class="mu">Gagal diunggah${loc('wawancara')}</div></div>${flag('wawancara')}<span class="chip er">Failed</span> <button class="btn">Retry</button></div></div></div>
+<div><div class="box"><h2>Preview: Artikel utama.docx</h2><div class="ph" style="height:150px">preview file</div><br>
+<label>Deskripsi</label><input placeholder="Deskripsi file"><label>Sumber informasi</label><input placeholder="Nama narasumber / dokumen / tanggal"></div>
+<div class="note">Edge case: jika artikel utama diubah, muncul notifikasi "konten turunan mungkin perlu diperbarui".</div></div></div>`,
+brief:()=>`<div class="grid g2"><div class="box"><label>Tujuan konten</label><textarea rows="3" placeholder="Mis. mengedukasi warga tentang penyebab banjir"></textarea>
+<label>Format media (bisa lebih dari satu)</label><div class="row"><label><input type="checkbox" checked style="width:auto"> Carousel</label><label><input type="checkbox" disabled style="width:auto"> Video AI (tidak tersedia · kode etik)</label><label><input type="checkbox" disabled style="width:auto"> Gambar AI (tidak tersedia · kode etik)</label></div><br>
+<label>Target audiens</label><select><option>Warga usia 18–35</option></select><label>Platform</label><select><option>Instagram</option></select><label>Tone of voice</label><select><option>Informatif, tenang</option></select></div>
+<div class="box"><h2>Custom guidelines</h2><select><option>Template: Carousel IG berita</option></select><textarea rows="5" placeholder="Mis. Jangan ubah kutipan narasumber. Cantumkan sumber di slide akhir."></textarea><button class="btn">Simpan sebagai template</button></div></div>`,
+plan:()=>`<div class="grid g2"><div>
+<div class="box"><h2>Konsep</h2><div>Carousel 6 slide: dampak banjir → penyebab → data → imbauan.</div></div>
+<div class="box"><h2>Outline & script</h2><div class="mu">Slide 1</div><div>Hook: <span class="hl" id="h1">12.000 warga terdampak</span> banjir di Bandung Selatan.</div><br>
+<div class="mu">Slide 2</div><div>Curah hujan <span class="hl" onclick="hlTog()" id="h2">tertinggi dalam 10 tahun</span> menurut BMKG.</div>
+<div id="warn" class="note" style="display:none;background:var(--wn)">⚠ Klaim belum punya sumber pendukung. Tandai untuk verifikasi.</div><br>
+<textarea rows="3">Edit script secara manual…</textarea>
+<div class="row"><button class="btn">Beri feedback</button><button class="btn">Regenerate</button></div></div></div>
+<div><div class="box"><h2>Referensi sumber</h2>
+<div class="file"><div class="ph">PDF</div><div style="flex:1">data-BPBD.pdf, hlm. 3<div class="mu">mendukung: "12.000 warga"</div></div><button class="btn">Buka</button></div>
+<div class="file"><div class="ph">DOC</div><div style="flex:1">Artikel utama, par. 4</div><button class="btn">Buka</button></div>
+<div class="file"><div class="ph">?</div><div style="flex:1">Tidak ada sumber untuk klaim 2<div class="mu"><span class="chip wn">Belum terverifikasi</span></div></div></div></div>
+<div class="box dash"><div class="mu">Revisi fakta/sumber → kembali ke Information Bank</div><br><button class="btn p" id="appc">Setujui konsep →</button></div></div></div>`,
+media:()=>`<div class="box"><div class="slides">${[1,2,3,4,5,6].map(i=>`<div class="slide ${i===slide?'on':''}" onclick="slide=${i};render()"><span class="mu">Slide ${i}</span><div class="ph">visual</div><div style="height:10px;background:var(--fl)"></div></div>`).join('')}</div></div>
+<div class="grid g2"><div class="box"><h2>Editor slide ${slide}</h2><div class="ph" style="height:230px">Preview slide ${slide}</div></div>
+<div class="box"><label>Teks slide</label><textarea rows="3">Teks slide ${slide}…</textarea><label>Minta revisi AI (hanya slide ini)</label><input placeholder="Mis. ganti visual lebih sederhana"><div class="row"><button class="btn">Regenerate elemen terpilih</button><button class="btn">Revisi script → Planning</button></div><br>
+<div class="mu">Slide lain yang sudah disetujui tidak ikut diproses ulang.</div><br><button class="btn p" data-step="4">Kirim ke QC →</button></div></div>`,
+qc:()=>`<div class="grid g2"><div class="box"><h2>Preview carousel</h2><div class="ph" style="height:230px">Slide ${slide} / 6</div><br><div class="row"><button class="btn" onclick="slide=Math.max(1,slide-1);render()">‹</button><button class="btn" onclick="slide=Math.min(6,slide+1);render()">›</button></div>
+<h2 style="margin-top:12px">Version history</h2><div class="mu">v3 · Approved oleh jurnalis · sekarang<br>v2 · Revisi slide 2 · 10:40<br>v1 · Generated · 10:12</div></div>
+<div><div class="box"><h2>Verifikasi sumber</h2>
+<div class="file"><span class="chip ok">✓</span><div style="flex:1">12.000 warga terdampak<div class="mu">BPBD hlm. 3</div></div></div>
+<div class="file"><span class="chip wn">!</span><div style="flex:1">Curah hujan tertinggi 10 tahun<div class="mu">Perlu verifikasi</div></div></div></div>
+<div class="box"><h2>Komentar revisi</h2><textarea rows="2" placeholder="Tulis catatan…"></textarea>
+<div class="row"><button class="btn p" id="ap">Setujui</button><button class="btn" id="rj">Tolak / Revisi</button></div></div>
+<div class="note">AI tidak bisa menandai konten sebagai Approved. Hanya jurnalis.</div></div></div>`,
+export:()=>`<div class="grid g2"><div class="box"><h2>Pengaturan export</h2><label>Format file</label><select><option>PNG per slide</option><option>PDF</option></select>
+<label><input type="checkbox" checked style="width:auto"> Sertakan credit & sumber</label><br><label><input type="checkbox" checked style="width:auto"> Simpan metadata karya</label><br><br>
+<label>Credit</label><input value="Faris Zakaria · Artikel utama">
+<button class="btn p" ${approved?'':'disabled'}>Unduh final</button> ${approved?'':'<div class="mu">Nonaktif: konten belum Approved</div>'}</div>
+<div class="box"><h2>Riwayat download</h2><table><tr><th>File</th><th>Tgl</th></tr><tr><td>dana-desa.zip</td><td>2 Nov</td></tr></table></div></div>`};
+function render(){
+ $('#stp').innerHTML=S.map((s,i)=>`<a class="${i===cur?'on':''}" data-step="${i}">${i+1}. ${s}</a>`).join('');
+ $('#stage').innerHTML=T[K[cur]]();
+ $('#st').textContent=approved?'Approved':(cur>=4?'Needs Review':'Draft');
+ $('#st').className='chip '+(approved?'ok':cur>=4?'wn':'');
+ const ap=$('#ap');if(ap)ap.onclick=()=>{approved=true;render()};
+ const rj=$('#rj');if(rj)rj.onclick=()=>{cur=3;render()};
+ const pc=$('#appc');if(pc)pc.onclick=()=>{cur=3;render()};
+}
+let ps=0,img={1:'foto-lokasi-01.jpg'},bankImgs=['foto-lokasi-01.jpg','foto-lokasi-02.jpg','foto-warga.jpg','grafis-BPBD.png'];
+const ob=T.bank;
+T.bank=()=>ob().replace('<div class="box dash" style="text-align:center;padding:26px">',`<div class="box"><h2>Artikel utama</h2><div class="mu">Pilih salah satu cara menambahkan artikel</div><br><div class="grid g3"><button class="btn">Upload artikel</button><button class="btn">Tulis / tempel artikel baru</button><button class="btn">Belum ada artikel: AI bantu susun di tahap 3</button></div></div><div class="box dash" style="text-align:center;padding:26px">`);
+T.plan=()=>{const tabs=['1. Fakta kunci','2. Struktur artikel','3. Draft artikel'];
+const head=`<div class="row" style="margin-bottom:12px">${tabs.map((t,i)=>`<button class="btn ${i===ps?'p':''}" onclick="ps=${i};render()">${t}</button>`).join('')}</div>`;
+const src=`<div class="box"><h2>Sumber dari Information Bank</h2><div class="file"><div class="ph">PDF</div><div style="flex:1">data-BPBD.pdf<div class="mu">hlm. 3</div></div><button class="btn">Buka</button></div><div class="file"><div class="ph">DOC</div><div style="flex:1">Catatan wawancara<div class="mu">kutipan Pak Asep</div></div><button class="btn">Buka</button></div></div>`;
+if(ps===0)return head+`<div class="note">Langkah 1 dari 3 · AI membaca bahan liputan dan mengambil fakta. Centang fakta yang boleh dipakai di artikel.</div><div class="grid g2"><div class="box"><h2>Fakta yang ditemukan</h2><table><tr><th></th><th>Fakta</th><th>Sumber</th></tr><tr><td><input type="checkbox" checked style="width:auto"></td><td>12.000 warga terdampak</td><td><span class="chip ok">BPBD hlm. 3</span></td></tr><tr><td><input type="checkbox" checked style="width:auto"></td><td>Banjir di 5 kecamatan</td><td><span class="chip ok">Wawancara</span></td></tr><tr><td><input type="checkbox" style="width:auto"></td><td>Curah hujan tertinggi 10 tahun</td><td><span class="chip wn">Belum ada sumber</span></td></tr></table><br><button class="btn p" onclick="ps=1;render()">Lanjut: susun struktur →</button></div>${src}</div>`;
+if(ps===1)return head+`<div class="note">Langkah 2 dari 3 · Tentukan sudut pandang dan kerangka artikel. Kerangka bisa diubah sebelum AI menulis.</div><div class="grid g2"><div class="box"><label>Jenis artikel</label><select><option>Berita langsung</option><option>Feature</option></select><label>Sudut pandang (angle)</label><input value="Dampak banjir bagi warga dan respons pemerintah"><h2>Kerangka</h2><div class="file"><b>Lead</b><span class="mu" style="flex:1">Apa, siapa, di mana, kapan</span><span class="chip">2 sumber</span></div><div class="file"><b>Isi</b><span class="mu" style="flex:1">Data dampak dan penyebab</span><span class="chip">3 sumber</span></div><div class="file"><b>Kutipan</b><span class="mu" style="flex:1">Pernyataan narasumber</span><span class="chip">1 sumber</span></div><div class="file"><b>Penutup</b><span class="mu" style="flex:1">Langkah lanjutan</span><span class="chip wn">0 sumber</span></div><br><button class="btn" onclick="ps=0;render()">← Kembali</button> <button class="btn p" onclick="ps=2;render()">Buat draft artikel →</button></div>${src}</div>`;
+return head+`<div class="note">Langkah 3 dari 3 · Draft artikel dari sumber Anda. Angka [1] [2] menunjuk sumber. Edit langsung, lalu setujui.</div><div class="grid g2"><div class="box"><h2>Banjir Rendam 5 Kecamatan di Bandung Selatan</h2><p>Sebanyak <span class="hl">12.000 warga</span> [1] terdampak banjir di lima kecamatan, Selasa (3/11).</p><p>Curah hujan disebut <span class="hl" onclick="hlTog()" id="h2">tertinggi dalam 10 tahun</span> <span class="chip wn">perlu verifikasi</span></p><div id="warn" class="note" style="display:none;background:var(--wn)">Klaim ini belum punya sumber. Tambahkan sumber di Information Bank atau hapus.</div><p><span class="chip">Kutipan dikunci</span> "Air naik sejak subuh," kata Asep. [2]</p><div class="row"><button class="btn">Beri feedback</button><button class="btn">Tulis ulang paragraf terpilih</button><button class="btn" onclick="ps=1;render()">← Struktur</button></div><br><button class="btn p" id="appc">Setujui artikel → Media Generation</button></div>${src}</div>`};
+T.media=()=>{const sl=[1,2,3,4,5,6];return `<div class="note" style="background:var(--wn)">Gambar dan video tidak dapat dibuat AI, sesuai Kode Etik Jurnalistik Indonesia. Visual hanya diambil dari foto dan dokumen asli di Information Bank.</div><div class="box"><div class="slides">${sl.map(i=>`<div class="slide ${i===slide?'on':''}" onclick="slide=${i};render()"><span class="mu">Slide ${i}</span><div class="ph">${img[i]||'pilih gambar'}</div><div style="height:10px;background:var(--fl)"></div></div>`).join('')}</div></div><div class="grid g2"><div class="box"><h2>Preview slide ${slide}</h2><div class="ph" style="height:200px">${img[slide]||'Belum ada gambar'}</div><div class="mu" style="margin-top:6px">Credit: ${img[slide]?'Foto: Faris Zakaria (dari Information Bank)':'-'}</div></div><div class="box"><h2>Pilih dari Information Bank</h2><div class="grid g4" style="grid-template-columns:repeat(4,1fr)">${bankImgs.map(b=>`<div class="ph" style="height:62px;cursor:pointer;${img[slide]===b?'outline:3px solid var(--ac)':''}" onclick="img[slide]='${b}';render()">${b.split('.')[0]}</div>`).join('')}</div><br><label>Teks slide (diambil dari artikel)</label><textarea rows="2">Teks slide ${slide}</textarea><div class="row"><button class="btn" disabled>Generate gambar AI (terkunci)</button><button class="btn" disabled>Generate video AI (terkunci)</button></div><br><div class="row"><button class="btn">Minta AI rapikan teks</button><button class="btn">+ Upload foto ke bank</button></div><br><button class="btn p" data-step="4">Kirim ke QC →</button></div></div>`};
+function hlTog(){hl=!hl;$('#warn').style.display=hl?'block':'none'}
+document.addEventListener('click',e=>{
+ const g=e.target.closest('[data-go]');if(g){e.preventDefault();go(g.dataset.go);return}
+ const n=e.target.closest('[data-n]');if(n){show(n.dataset.n);return}
+ const s=e.target.closest('[data-step]');if(s){cur=+s.dataset.step;render()}
+});
+</script></body></html>

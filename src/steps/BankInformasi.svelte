@@ -142,7 +142,7 @@
     flex-wrap: wrap;
     border: 2px dashed var(--accent);
     background: var(--accent-bg);
-    border-radius: 8px;
+    border-radius: 0;
     padding: 14px 16px;
     margin-bottom: 20px;
   }
@@ -163,7 +163,7 @@
   .filter button[aria-pressed='true'] {
     background: var(--text);
     border-color: var(--text);
-    color: #fff;
+    color: var(--on-solid);
   }
 
   .state {
@@ -248,24 +248,29 @@
   }
 
   .toggle button:first-child {
-    border-radius: 6px 0 0 6px;
+    border-radius: 0;
   }
 
   .toggle button:last-child {
-    border-radius: 0 6px 6px 0;
-    margin-left: -1px;
+    border-radius: 0;
+    margin-left: -1.5px;
+  }
+
+  .toggle button {
+    color: var(--muted);
+  }
+
+  .toggle button[aria-pressed='true'] {
+    color: var(--text);
+    font-weight: 600;
   }
 
   .toggle button:first-child[aria-pressed='true'] {
-    background: var(--hijau);
-    border-color: var(--hijau);
-    color: #fff;
+    background: var(--hijau-bg);
   }
 
   .toggle button:last-child[aria-pressed='true'] {
-    background: var(--merah);
-    border-color: var(--merah);
-    color: #fff;
+    background: var(--merah-bg);
   }
 
   .ask {
@@ -309,8 +314,8 @@
     font-size: 12px;
     font-weight: 600;
     padding: 1px 6px;
-    border-radius: 4px;
-    background: #ececea;
+    border-radius: 0;
+    background: var(--fl);
   }
 
   .kind.visual {

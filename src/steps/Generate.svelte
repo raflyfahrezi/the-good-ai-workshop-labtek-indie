@@ -200,8 +200,8 @@
 
   .flag {
     padding: 8px 10px;
-    border-radius: 6px;
-    background: #ececea;
+    border-radius: 0;
+    background: var(--fl);
     display: grid;
     gap: 2px;
   }

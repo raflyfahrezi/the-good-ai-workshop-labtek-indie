@@ -20,30 +20,27 @@
     display: inline-block;
     font-size: 12px;
     font-weight: 600;
-    padding: 2px 10px;
-    border-radius: 999px;
-    background: #ececea;
-    color: var(--muted);
+    padding: 1px 8px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: var(--fl);
+    color: var(--text);
     white-space: nowrap;
   }
 
   .busy {
-    background: var(--accent-bg);
-    color: var(--accent);
+    border-style: dashed;
   }
 
   .review {
     background: var(--kuning-bg);
-    color: var(--kuning);
   }
 
   .ok {
     background: var(--hijau-bg);
-    color: var(--hijau);
   }
 
   .bad {
     background: var(--merah-bg);
-    color: var(--merah);
   }
 </style>

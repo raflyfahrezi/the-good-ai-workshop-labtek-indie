@@ -1,4 +1,5 @@
 <script>
+  import { restartDemo } from '../lib/router.js'
   import { exportFormats, formats, script, story } from '../lib/data.js'
   import { flow, finalSlides, findSource, auditInfo, decisionLabel, defaultExportFormats, log } from '../lib/flow.svelte.js'
 
@@ -71,10 +72,6 @@
     log(`Diekspor (v${flow.version}): ${files.join(', ')}`)
   }
 
-  function restart() {
-    window.location.hash = ''
-    window.location.reload()
-  }
 </script>
 
 <div class="screen-head">
@@ -163,7 +160,7 @@
   </table>
 </div>
 
-<button class="restart" onclick={restart}>↺ Mulai ulang demo</button>
+<button class="restart" onclick={restartDemo}>↺ Mulai ulang demo</button>
 
 <style>
   .cols {
@@ -226,26 +223,19 @@
   .table-wrap {
     overflow-x: auto;
     background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
   }
 
   table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 14px;
   }
 
   th,
   td {
     text-align: left;
     vertical-align: top;
-    padding: 8px 10px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  th {
-    background: #f1f1ee;
+    padding: 6px;
+    border: 1px solid var(--border);
     font-size: 13px;
   }
 

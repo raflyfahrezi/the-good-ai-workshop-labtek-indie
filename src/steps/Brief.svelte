@@ -133,8 +133,8 @@
     display: flex;
     gap: 10px;
     align-items: flex-start;
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    border: 1.5px solid var(--border);
+    border-radius: 0;
     padding: 8px 10px;
     cursor: pointer;
   }
@@ -156,7 +156,7 @@
     font-size: 11px;
     font-weight: 600;
     padding: 1px 6px;
-    border-radius: 4px;
+    border-radius: 0;
     margin-left: 6px;
   }
 
@@ -166,7 +166,7 @@
   }
 
   .tag.later {
-    background: #ececea;
+    background: var(--fl);
     color: var(--muted);
   }
 
@@ -185,7 +185,7 @@
   .chips button[aria-pressed='true'] {
     background: var(--accent);
     border-color: var(--accent);
-    color: #fff;
+    color: var(--on-solid);
   }
 
   .field {
@@ -205,10 +205,10 @@
   select {
     font: inherit;
     flex: 1;
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    border: 1.5px solid var(--border);
+    border-radius: 0;
     padding: 6px 8px;
-    background: #fff;
+    background: var(--card);
   }
 
   .rule {

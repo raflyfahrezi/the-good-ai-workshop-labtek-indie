@@ -1,185 +1,159 @@
 <script>
-  import { recentProjects, script, story } from '../lib/data.js'
-  import { flow, steps, goTo, contentStatus } from '../lib/flow.svelte.js'
-  import StatusChip from '../lib/StatusChip.svelte'
+  // Dashboard page: composes the dashboard components. Numbers come from lib/dashboard.js.
+  import { journalist, recentProjects, story } from '../lib/data.js'
+  import { flow, goTo, openView } from '../lib/flow.svelte.js'
+  import { activeProject, dashboardStats } from '../lib/dashboard.js'
+  import StatStrip from '../components/dashboard/StatStrip.svelte'
+  import ActiveProjectCard from '../components/dashboard/ActiveProjectCard.svelte'
+  import ActivityFeed from '../components/dashboard/ActivityFeed.svelte'
+  import QuickActions from '../components/dashboard/QuickActions.svelte'
+  import ProjectTable from '../components/dashboard/ProjectTable.svelte'
 
-  let status = $derived(contentStatus())
-  let openLines = $derived(script.filter((l) => !flow.decisions[l.id]).length)
-  let progress = $derived(Math.round((flow.furthest / (steps.length - 1)) * 100))
-  // North Star metric from the PRD: derivative content approved by the journalist from one story
-  let approvedCount = $derived(flow.approved || flow.exported ? 1 : 0)
+  let stats = $derived(dashboardStats())
+  let project = $derived(activeProject())
+
+  const actions = [
+    { label: 'Unggah bahan liputan', onclick: () => goTo(0) },
+    { label: 'Buka guideline', onclick: () => openView('guidelines') },
+    { label: '+ Project liputan baru', disabled: true, hint: 'Di demo hanya ada satu project' },
+  ]
 </script>
 
-<div class="screen-head">
-  <h2>Halo, Faris</h2>
-  <p class="muted">Semua liputan dan konten turunannya ada di satu tempat. Lanjutkan dari langkah terakhir.</p>
-  <p class="human">
-    <strong>Keputusan jurnalis:</strong> status konten hanya berubah menjadi Disetujui setelah jurnalis menyetujuinya di
-    QC Editorial. AI tidak pernah menyetujui sendiri.
-  </p>
-</div>
+<div class="dashboard">
+  <header class="masthead">
+    <p class="kicker">Meja kerja · {story.newsroom}</p>
+    <h2>Halo, {journalist.name}.</h2>
+    <p class="lede">Semua liputan dan konten turunannya ada di satu tempat. Lanjutkan dari langkah terakhir.</p>
+  </header>
 
-<div class="stats">
-  <div class="card stat"><span class="num">{1 + recentProjects.length}</span><span class="small muted">project liputan</span></div>
-  <div class="card stat">
-    <span class="num">{status === 'Perlu Review' ? 1 : 0}</span><span class="small muted">konten perlu review</span>
-  </div>
-  <div class="card stat">
-    <span class="num">{approvedCount}</span><span class="small muted">konten turunan disetujui dari liputan aktif</span>
-  </div>
-</div>
-
-<div class="cols">
-  <section class="card active">
-    <div class="row">
-      <span class="small muted">Project aktif</span>
-      <StatusChip {status} />
-    </div>
-    <h3>{story.title}</h3>
-    <p class="small muted">Tenggat {story.deadline}</p>
-
-    <div class="bar"><span style:width="{progress}%"></span></div>
-    <p class="small">
-      Langkah terakhir: <strong>{steps[flow.step].id} · {steps[flow.step].label}</strong>
-      {#if flow.furthest >= 3 && openLines > 0}· {openLines} baris script belum dicek{/if}
+  <aside class="human-note">
+    <span class="tag">Keputusan jurnalis</span>
+    <p>
+      Status konten hanya berubah menjadi <strong>Disetujui</strong> setelah jurnalis menyetujuinya di QC Editorial. AI
+      tidak pernah menyetujui sendiri.
     </p>
-    {#if flow.history[0]}
-      <p class="small muted">Terakhir: {flow.history[0].text} ({flow.history[0].at})</p>
-    {/if}
+  </aside>
 
-    <div class="actions">
-      <button class="primary" onclick={() => goTo(flow.step)}>Lanjutkan project →</button>
-      <button onclick={() => goTo(0)}>Unggah bahan</button>
-      <button disabled title="Di demo hanya ada satu project">+ Project baru</button>
+  <StatStrip {stats} />
+
+  <div class="cols">
+    <ActiveProjectCard {project} onContinue={() => goTo(flow.step)} />
+    <div class="side">
+      <ActivityFeed entries={flow.history} />
+      <QuickActions {actions} />
     </div>
-  </section>
+  </div>
 
-  <section class="card">
-    <h3>Aktivitas terakhir</h3>
-    {#each flow.history.slice(0, 6) as entry, i (i)}
-      <p class="small entry"><span class="muted">{entry.at}</span> {entry.text}</p>
-    {:else}
-      <p class="small muted">Belum ada aktivitas di sesi ini.</p>
-    {/each}
-  </section>
-</div>
-
-<h3 class="recent-title">Project lain</h3>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr><th>Project</th><th>Format</th><th>Diperbarui</th><th>Status</th></tr>
-    </thead>
-    <tbody>
-      {#each recentProjects as p (p.title)}
-        <tr>
-          <td>{p.title}</td>
-          <td>{p.formats}</td>
-          <td>{p.updated}</td>
-          <td><StatusChip status={p.status} /></td>
-        </tr>
-      {/each}
-    </tbody>
-  </table>
+  <ProjectTable projects={recentProjects} />
 </div>
 
 <style>
-  .stats {
+  .dashboard {
+    max-width: 1080px;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  /* One staggered reveal on load, top to bottom */
+  .dashboard > :global(*) {
+    animation: rise 0.45s ease-out both;
+  }
+  .dashboard > :global(:nth-child(2)) {
+    animation-delay: 0.05s;
+  }
+  .dashboard > :global(:nth-child(3)) {
+    animation-delay: 0.1s;
+  }
+  .dashboard > :global(:nth-child(4)) {
+    animation-delay: 0.15s;
+  }
+  .dashboard > :global(:nth-child(5)) {
+    animation-delay: 0.2s;
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dashboard > :global(*) {
+      animation: none;
+    }
+  }
+
+  .masthead {
+    display: grid;
+    gap: 6px;
+    padding-bottom: 16px;
+    border-bottom: 1.5px solid var(--border);
+  }
+
+  .kicker {
+    font: 400 11px/1 var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+  }
+
+  h2 {
+    font: 500 40px/1.05 var(--font-display);
+    letter-spacing: -0.8px;
+  }
+
+  .lede {
+    color: var(--muted);
+    font-size: 15px;
+    max-width: 60ch;
+  }
+
+  /* Human-in-the-loop callout, kept visible on every screen */
+  .human-note {
+    display: flex;
+    align-items: baseline;
     gap: 12px;
-    margin-bottom: 16px;
+    border: 1.5px dashed var(--border);
+    padding: 10px 14px;
+    font-size: 13px;
   }
 
-  .stat {
-    display: grid;
-  }
-
-  .stat .num {
-    font-size: 28px;
-    font-weight: 700;
+  .tag {
+    flex: none;
+    font: 600 10px/1 var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    background: var(--accent);
+    color: var(--on-solid);
+    padding: 4px 6px;
   }
 
   .cols {
     display: grid;
-    grid-template-columns: 1.4fr 1fr;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
     gap: 16px;
     align-items: start;
   }
 
-  section {
+  .side {
     display: grid;
-    gap: 8px;
+    gap: 16px;
   }
 
-  .active {
-    border-color: var(--accent);
-  }
-
-  .row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .bar {
-    height: 6px;
-    background: #ececea;
-    border-radius: 3px;
-    overflow: hidden;
-  }
-
-  .bar span {
-    display: block;
-    height: 100%;
-    background: var(--accent);
-  }
-
-  .actions {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-top: 4px;
-  }
-
-  .entry {
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 6px;
-  }
-
-  .recent-title {
-    margin: 24px 0 10px;
-  }
-
-  .table-wrap {
-    overflow-x: auto;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-  }
-
-  th,
-  td {
-    text-align: left;
-    padding: 8px 10px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  th {
-    background: #f1f1ee;
-    font-size: 13px;
-  }
-
-  @media (max-width: 760px) {
-    .stats,
+  @media (max-width: 900px) {
     .cols {
       grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 560px) {
+    h2 {
+      font-size: 32px;
+    }
+    .human-note {
+      flex-direction: column;
+      gap: 6px;
     }
   }
 </style>

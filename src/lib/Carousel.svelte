@@ -51,9 +51,9 @@
   .slide {
     position: relative;
     aspect-ratio: 4 / 5;
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 0;
     padding: 12px;
     display: flex;
     flex-direction: column;
@@ -68,18 +68,19 @@
     order: 3;
   }
 
-  /* Layout c: dark card */
+  /* Layout c: inverted ink card */
   .layout-c {
-    background: #1d2b3a;
-    color: #fff;
+    background: var(--text);
+    color: var(--bg);
   }
   .layout-c .visual {
-    background: #2c3e50;
-    border-color: #4a5d70;
-    color: #c9d4de;
+    background: transparent;
+    border-color: var(--muted);
+    color: var(--bg);
   }
   .layout-c .foot {
-    color: #9fb0c0;
+    color: var(--bg);
+    opacity: 0.7;
   }
 
   .busy {
@@ -102,16 +103,15 @@
     font-size: 11px;
     font-weight: 600;
     background: var(--accent);
-    color: #fff;
+    color: var(--on-solid);
     padding: 1px 8px;
     border-radius: 999px;
   }
 
   .visual {
     flex: 1;
-    border: 2px dashed var(--border);
-    border-radius: 6px;
-    background: #f1f1ee;
+    border: 1.5px solid var(--border);
+    background: repeating-linear-gradient(45deg, var(--fl), var(--fl) 8px, transparent 8px, transparent 16px);
     display: grid;
     place-items: center;
     text-align: center;
@@ -143,8 +143,8 @@
   .flag {
     font-size: 13px;
     padding: 6px 8px;
-    border-radius: 6px;
-    background: #ececea;
+    border-radius: 0;
+    background: var(--fl);
   }
 
   .flag.merah {

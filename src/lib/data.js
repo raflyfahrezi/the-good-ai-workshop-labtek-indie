@@ -7,12 +7,22 @@ export const story = {
   author: 'Faris Zakaria (persona fiktif)',
   newsroom: 'Redaksi Contoh',
   deadline: 'Kamis, 5 Nov 2026, 17.00',
+  deadlineRelative: 'Besok', // the demo is presented the day before the deadline
 }
+
+// The signed-in journalist (fictional persona from the Phase 1 research)
+export const journalist = { name: 'Faris' }
 
 // Dashboard: other projects of the same journalist. Display only.
 export const recentProjects = [
   { title: 'Harga Cabai Naik Jelang Musim Hujan', status: 'Diekspor', formats: 'Image Slides', updated: '28 Okt 2026' },
   { title: 'Sekolah Darurat di Lereng Gunung Sirna', status: 'Draf', formats: 'Video Reels', updated: '2 Nov 2026' },
+]
+
+// Riwayat Konten: earlier exports from other projects. Display only.
+export const contentHistory = [
+  { content: 'Harga Cabai Naik Jelang Musim Hujan, Image Slides', format: 'PNG ×7', status: 'Diekspor', date: '28 Okt 2026' },
+  { content: 'Harga Cabai Naik Jelang Musim Hujan, Image Slides', format: 'PDF', status: 'Gagal', date: '28 Okt 2026' },
 ]
 
 // Step 1: Bank Informasi. Every item has an ID so output can point back to it.
@@ -169,36 +179,14 @@ export const defaultBrief = {
   length: 10,
 }
 
-// Step 3: Saran & Masukan AI
+// Step 3: notes the AI writes at the top of the script document
 export const briefFeedback = [
-  'Materi di bank cukup untuk 7 slide, bukan 10. Slide tambahan berisiko diisi hal di luar sumber.',
-  'Pihak pabrik belum memberi tanggapan. Sebaiknya disebut di slide agar berimbang.',
+  'Materi di bank cukup untuk 7 paragraf. Paragraf tambahan berisiko diisi hal di luar sumber.',
+  'Pihak pabrik belum memberi tanggapan. Ini disebut di paragraf 6 agar berimbang.',
   'FOTO-3 berlabel sensitif dan menampilkan wajah narasumber, jadi tidak akan dipakai.',
 ]
 
-export const angles = [
-  { id: 'warga', title: 'Dari sudut warga', hook: '140 keluarga kini membeli air untuk minum. Kenapa?' },
-  { id: 'data', title: 'Dari data lab', hook: 'Di satu titik, kadar COD tiga kali di atas baku mutu.' },
-  { id: 'tanya', title: 'Pertanyaan yang belum terjawab', hook: 'Air berubah biru tiap Selasa dan Jumat. Siapa yang bertanggung jawab?' },
-]
-
-// Shown after the journalist sends feedback and asks the AI to regenerate the concept
-export const regeneratedAngle = {
-  id: 'berimbang',
-  title: 'Versi berimbang (dari masukan Anda)',
-  hook: 'Warga, lab, DLH, pabrik: siapa sudah bicara dan siapa belum soal Sungai Cilayung?',
-}
-
-// Outline of the concept. The full script with sources is reviewed line by line in step 3b.
-export const outline = [
-  { slides: '1', part: 'Hook', text: 'Dampak langsung ke warga: membeli air untuk minum' },
-  { slides: '2-3', part: 'Konteks', text: 'Kapan air berubah warna, kesaksian warga' },
-  { slides: '4-5', part: 'Data', text: 'Hasil uji lab dan posisinya terhadap baku mutu' },
-  { slides: '6', part: 'Respons', text: 'DLH akan verifikasi, pabrik belum menjawab' },
-  { slides: '7', part: 'Ajakan', text: 'Arahkan ke liputan lengkap' },
-]
-
-// Step 3b: Verifikasi Konsep & Naskah. One line per slide for the Image Slides format.
+// Step 3: Script & Sumber. One paragraph per slide for the Image Slides format.
 export const script = [
   {
     id: 'L1', slide: 1,

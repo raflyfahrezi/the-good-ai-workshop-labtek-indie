@@ -129,8 +129,8 @@
   }
 
   fieldset {
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    border: 1.5px solid var(--border);
+    border-radius: 0;
     padding: 10px;
     margin: 0;
   }
@@ -155,7 +155,7 @@
   }
 
   .entry {
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1.5px solid var(--border);
     padding-bottom: 6px;
   }
 
@@ -181,8 +181,8 @@
   }
 
   .passage {
-    background: #fff1a8;
-    border-radius: 6px;
+    background: var(--hl);
+    border-radius: 0;
     padding: 6px 8px;
   }
 
