@@ -32,8 +32,9 @@
   /* Editorial type: serif for headlines, mono for labels and figures */
   --font-display: 'Newsreader Variable', Georgia, serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, Consolas, monospace;
+  --font-ui: 'Segoe UI', Helvetica, Arial, sans-serif;
 
-  font: 14px/1.45 'Segoe UI', Helvetica, Arial, sans-serif;
+  font: 14px/1.45 var(--font-ui);
   color-scheme: light;
   color: var(--text);
   background: var(--bg);

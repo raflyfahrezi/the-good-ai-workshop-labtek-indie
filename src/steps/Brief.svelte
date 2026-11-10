@@ -1,238 +1,135 @@
 <script>
-  import { formats, guidelineTemplates, platforms } from '../lib/data.js'
-  import { flow, log } from '../lib/flow.svelte.js'
+  // Step 2, Brief & Guideline: the journalist sets the goal, the format and the rules the AI must follow
+  import { flow } from '../lib/flow.svelte.js'
+  import { briefSummary, laterFormats, togglePlatform } from '../lib/brief.js'
+  import PageHeader from '../components/PageHeader.svelte'
+  import HumanNote from '../components/HumanNote.svelte'
+  import FormField from '../components/brief/FormField.svelte'
+  import FormatPicker from '../components/brief/FormatPicker.svelte'
+  import PlatformPicker from '../components/brief/PlatformPicker.svelte'
+  import SlideCount from '../components/brief/SlideCount.svelte'
+  import RuleBook from '../components/brief/RuleBook.svelte'
+  import BriefSummary from '../components/brief/BriefSummary.svelte'
 
-  let newRule = $state('')
-  let template = $state(guidelineTemplates[0].id)
-
-  function addRule() {
-    if (!newRule.trim()) return
-    flow.brief.guardrails.push(newRule.trim())
-    newRule = ''
-  }
-
-  function loadTemplate() {
-    const t = guidelineTemplates.find((g) => g.id === template)
-    flow.brief.guardrails = [...t.rules]
-    log(`Template guideline dimuat: ${t.label}`)
-  }
-
-  function togglePlatform(p) {
-    const list = flow.brief.platforms
-    if (list.includes(p)) list.splice(list.indexOf(p), 1)
-    else list.push(p)
-  }
+  let later = $derived(laterFormats())
+  let summary = $derived(briefSummary())
 </script>
 
-<div class="screen-head">
-  <h2>2 · Brief & Guideline</h2>
-  <p class="muted">Tentukan tujuan, format, audiens, platform dan aturan yang wajib dipatuhi AI.</p>
-  <p class="human">
-    <strong>Keputusan jurnalis:</strong> aturan main ditetapkan jurnalis. AI mengikuti guideline ini, dan QC otomatis di
-    langkah 4 memeriksa hasilnya terhadap aturan yang sama. Tulis aturan dengan kata-kata Anda sendiri.
-  </p>
-</div>
+<div class="page">
+  <PageHeader
+    size="sm"
+    kicker="Langkah 2 dari 6"
+    title="Brief & Guideline"
+    lede="Tentukan tujuan, format, audiens dan platform, lalu aturan main yang wajib dipatuhi AI saat menyusun script."
+  />
 
-<div class="cols">
-  <section class="card">
-    <h3>Brief</h3>
+  <HumanNote>
+    Aturan main ditetapkan jurnalis. AI mengikuti brief dan guideline ini, dan QC otomatis memeriksa hasilnya terhadap
+    aturan yang sama. Tulis aturan dengan kata-kata Anda sendiri.
+  </HumanNote>
 
-    <label class="field">
-      <span class="label">Tujuan konten</span>
-      <input type="text" bind:value={flow.brief.objective} />
-    </label>
+  <div class="layout">
+    <section class="sheet" aria-label="Brief">
+      <header class="sheet-head">
+        <h3>Brief</h3>
+        <span class="meta">6 isian</span>
+      </header>
 
-    <p class="label">Format media <span class="muted small">(boleh lebih dari satu)</span></p>
-    <div class="formats">
-      {#each formats as f (f.id)}
-        <label class="format" class:active={flow.brief.formats.includes(f.id)}>
-          <input type="checkbox" value={f.id} bind:group={flow.brief.formats} />
-          <span>
-            <strong>{f.label}</strong>
-            {#if f.mvp}<span class="tag mvp">dibuat di demo</span>{:else}<span class="tag later">fase berikutnya</span>{/if}
-            <span class="small muted hint">{f.hint}</span>
-          </span>
-        </label>
-      {/each}
-    </div>
-    {#if flow.brief.formats.some((id) => !formats.find((f) => f.id === id).mvp)}
-      <p class="small warn">Video Reels dan Audio dicatat di brief, tapi demo ini hanya membuat Image Slides (sesuai MVP).</p>
-    {/if}
+      <FormField n={1} label="Tujuan konten">
+        <textarea rows="2" bind:value={flow.brief.objective} aria-label="Tujuan konten"></textarea>
+      </FormField>
 
-    <p class="label">Platform tujuan</p>
-    <div class="chips">
-      {#each platforms as p (p)}
-        <button aria-pressed={flow.brief.platforms.includes(p)} onclick={() => togglePlatform(p)}>{p}</button>
-      {/each}
-    </div>
+      <FormField n={2} label="Format media" hint="Boleh lebih dari satu.">
+        <FormatPicker bind:value={flow.brief.formats} />
+        {#if later.length}
+          <p class="warn">
+            {later.map((f) => f.label).join(' dan ')} dicatat di brief, tapi demo ini hanya membuat Image Slides (sesuai MVP).
+          </p>
+        {/if}
+      </FormField>
 
-    <label class="field">
-      <span class="label">Audiens</span>
-      <input type="text" bind:value={flow.brief.audience} />
-    </label>
-    <label class="field">
-      <span class="label">Tone of voice</span>
-      <input type="text" bind:value={flow.brief.tone} />
-    </label>
-    <label class="field short">
-      <span class="label">Jumlah slide</span>
-      <input type="number" min="3" max="12" bind:value={flow.brief.length} />
-    </label>
-  </section>
+      <FormField n={3} label="Platform tujuan">
+        <PlatformPicker selected={flow.brief.platforms} ontoggle={togglePlatform} />
+      </FormField>
 
-  <section class="card">
-    <h3>Guideline</h3>
-    <div class="template">
-      <select bind:value={template} aria-label="Template guideline">
-        {#each guidelineTemplates as t (t.id)}
-          <option value={t.id}>{t.label}</option>
-        {/each}
-      </select>
-      <button onclick={loadTemplate}>Muat template</button>
-    </div>
-    <p class="small muted">Template mengganti daftar di bawah. Setiap aturan tetap bisa diubah, dihapus atau ditambah.</p>
-    {#each flow.brief.guardrails as _, i (i)}
-      <div class="rule">
-        <span class="small muted">{i + 1}.</span>
-        <input type="text" bind:value={flow.brief.guardrails[i]} aria-label="Aturan {i + 1}" />
-        <button class="remove" aria-label="Hapus aturan {i + 1}" onclick={() => flow.brief.guardrails.splice(i, 1)}>×</button>
-      </div>
-    {/each}
-    <form class="rule" onsubmit={(e) => (e.preventDefault(), addRule())}>
-      <span class="small muted">+</span>
-      <input type="text" bind:value={newRule} placeholder="Tulis aturan baru, misalnya: Jangan sebut nama desa tetangga" />
-      <button type="submit" disabled={!newRule.trim()}>Tambah</button>
-    </form>
-  </section>
+      <FormField n={4} label="Audiens">
+        <input type="text" bind:value={flow.brief.audience} aria-label="Audiens" />
+      </FormField>
+
+      <FormField n={5} label="Tone of voice">
+        <input type="text" bind:value={flow.brief.tone} aria-label="Tone of voice" />
+      </FormField>
+
+      <FormField n={6} label="Jumlah slide" hint="AI akan memberi catatan bila bahan di bank tidak cukup untuk jumlah ini.">
+        <SlideCount bind:value={flow.brief.length} />
+      </FormField>
+    </section>
+
+    <aside class="side">
+      <RuleBook />
+      <BriefSummary rows={summary} />
+    </aside>
+  </div>
 </div>
 
 <style>
-  .cols {
+  .page {
+    max-width: 1080px;
     display: grid;
-    grid-template-columns: 1.2fr 1fr;
     gap: 20px;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 24px;
     align-items: start;
   }
 
-  section {
-    display: grid;
-    gap: 10px;
-  }
-
-  .label {
-    font-size: 14px;
-    font-weight: 600;
-  }
-
-  .formats {
-    display: grid;
-    gap: 6px;
-  }
-
-  .format {
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
+  .sheet {
+    background: var(--card);
     border: 1.5px solid var(--border);
-    border-radius: 0;
-    padding: 8px 10px;
-    cursor: pointer;
   }
 
-  .format.active {
-    border-color: var(--accent);
-    background: var(--accent-bg);
+  .sheet-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 16px 18px 10px;
+    border-bottom: 1.5px solid var(--border);
   }
 
-  .format input {
-    margin-top: 5px;
+  h3 {
+    font: 500 22px/1.1 var(--font-display);
   }
 
-  .hint {
-    display: block;
-  }
-
-  .tag {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 1px 6px;
-    border-radius: 0;
-    margin-left: 6px;
-  }
-
-  .tag.mvp {
-    background: var(--hijau-bg);
-    color: var(--hijau);
-  }
-
-  .tag.later {
-    background: var(--fl);
+  .meta {
+    font: 400 11px/1 var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
     color: var(--muted);
   }
 
-  .chips {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-  }
-
-  .chips button {
-    font-size: 13px;
-    padding: 3px 12px;
-    border-radius: 999px;
-  }
-
-  .chips button[aria-pressed='true'] {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: var(--on-solid);
-  }
-
-  .field {
-    display: grid;
-    gap: 4px;
-  }
-
-  .field.short {
-    max-width: 140px;
-  }
-
-  .template {
-    display: flex;
-    gap: 8px;
-  }
-
-  select {
-    font: inherit;
-    flex: 1;
-    border: 1.5px solid var(--border);
-    border-radius: 0;
-    padding: 6px 8px;
-    background: var(--card);
-  }
-
-  .rule {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
-
-  .rule > span {
-    width: 18px;
-    text-align: right;
-  }
-
-  .remove {
-    padding: 4px 10px;
+  textarea {
+    field-sizing: content;
+    resize: vertical;
+    font: 400 17px/1.4 var(--font-display);
   }
 
   .warn {
+    font-size: 12px;
     color: var(--kuning);
-    font-weight: 600;
+    background: var(--kuning-bg);
+    padding: 6px 10px;
   }
 
-  @media (max-width: 760px) {
-    .cols {
+  .side {
+    display: grid;
+    gap: 16px;
+  }
+
+  @media (max-width: 900px) {
+    .layout {
       grid-template-columns: 1fr;
     }
   }

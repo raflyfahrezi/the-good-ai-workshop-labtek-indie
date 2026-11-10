@@ -1,10 +1,10 @@
 <script>
   import { guidelineTemplates } from '../lib/data.js'
-  import { flow, goTo, log } from '../lib/flow.svelte.js'
+  import { goTo } from '../lib/flow.svelte.js'
+  import { loadTemplate } from '../lib/brief.js'
 
   function useTemplate(t) {
-    flow.brief.guardrails = [...t.rules]
-    log(`Template guideline dimuat: ${t.label}`)
+    loadTemplate(t.id)
     goTo(1)
   }
 </script>

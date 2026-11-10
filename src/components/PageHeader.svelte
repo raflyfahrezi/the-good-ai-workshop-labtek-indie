@@ -1,9 +1,10 @@
 <script>
-  /** @type {{ kicker?: string, title: string, lede?: string, children?: import('svelte').Snippet }} */
-  let { kicker, title, lede, children } = $props()
+  // size 'sm' is for workflow steps, which already sit under the project title
+  /** @type {{ kicker?: string, title: string, lede?: string, size?: 'lg' | 'sm', children?: import('svelte').Snippet }} */
+  let { kicker, title, lede, size = 'lg', children } = $props()
 </script>
 
-<header class="masthead">
+<header class="masthead {size}">
   {#if kicker}<p class="kicker">{kicker}</p>{/if}
   <h2>{title}</h2>
   {#if lede}<p class="lede">{lede}</p>{/if}
@@ -30,6 +31,11 @@
     letter-spacing: -0.8px;
   }
 
+  .sm h2 {
+    font-size: 28px;
+    letter-spacing: -0.4px;
+  }
+
   .lede {
     color: var(--muted);
     font-size: 15px;
@@ -37,7 +43,7 @@
   }
 
   @media (max-width: 560px) {
-    h2 {
+    .lg h2 {
       font-size: 32px;
     }
   }

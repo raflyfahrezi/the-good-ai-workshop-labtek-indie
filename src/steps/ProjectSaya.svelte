@@ -4,7 +4,7 @@
   import { projectList, statusFilters } from '../lib/projects.js'
   import PageHeader from '../components/PageHeader.svelte'
   import HumanNote from '../components/HumanNote.svelte'
-  import StatusFilter from '../components/projects/StatusFilter.svelte'
+  import FilterTabs from '../components/FilterTabs.svelte'
   import ProjectCard from '../components/projects/ProjectCard.svelte'
 
   let filter = $state('semua')
@@ -27,7 +27,7 @@
   </HumanNote>
 
   <div class="toolbar">
-    <StatusFilter {filters} bind:value={filter} />
+    <FilterTabs label="Saring berdasarkan status" {filters} bind:value={filter} />
     <button disabled title="Di demo hanya ada satu project yang bisa dibuka">+ Project liputan baru</button>
   </div>
 

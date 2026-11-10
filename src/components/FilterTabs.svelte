@@ -1,11 +1,12 @@
 <script>
-  /** @type {{ filters: { id: string, label: string, count: number }[], value: string }} */
-  let { filters, value = $bindable() } = $props()
+  // Segmented filter tabs with a count each. Shared by Project Saya and Bank Informasi.
+  /** @type {{ filters: { id: string, label: string, count: number }[], value: string, label?: string, size?: 'md' | 'sm' }} */
+  let { filters, value = $bindable(), label = 'Saring', size = 'md' } = $props()
 </script>
 
-<div class="filters" role="group" aria-label="Saring berdasarkan status">
+<div class="filters {size}" role="group" aria-label={label}>
   {#each filters as f (f.id)}
-    <button aria-pressed={value === f.id} onclick={() => (value = f.id)}>
+    <button aria-pressed={value === f.id} disabled={f.count === 0 && value !== f.id} onclick={() => (value = f.id)}>
       {f.label} <span class="count">{f.count}</span>
     </button>
   {/each}
@@ -21,6 +22,11 @@
     margin-left: -1.5px;
     font-size: 13px;
     padding: 7px 12px;
+  }
+
+  .sm button {
+    font-size: 12px;
+    padding: 5px 10px;
   }
 
   button:first-child {

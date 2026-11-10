@@ -191,12 +191,6 @@ export function findSource(id) {
   return null
 }
 
-export const auditInfo = {
-  hijau: { icon: '🟢', label: 'Kutipan ditemukan' },
-  kuning: { icon: '🟡', label: 'Parafrase, cek makna' },
-  merah: { icon: '🔴', label: 'Tidak ada di sumber' },
-}
-
 export const decisionLabel = { setuju: 'Setuju', ubah: 'Diubah', buang: 'Dibuang' }
 
 // The script as it stands after the journalist's decisions: discarded lines removed, edits applied.
@@ -271,5 +265,3 @@ export function qcFlags() {
   }
   return flags
 }
-
-export const flagIcon = { merah: '🔴', kuning: '🟡', info: 'ℹ️' }

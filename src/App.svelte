@@ -1,8 +1,12 @@
 <script>
-  import { story, script } from './lib/data.js'
+  import { story } from './lib/data.js'
   import { flow, steps, goTo, next, contentStatus, revisionRoutes } from './lib/flow.svelte.js'
   import { hrefFor } from './lib/router.js'
-  import StatusChip from './lib/StatusChip.svelte'
+  import { nextLabel, stepGate } from './lib/gates.js'
+  import ProjectHeader from './components/project/ProjectHeader.svelte'
+  import Stepper from './components/project/Stepper.svelte'
+  import StepFooter from './components/project/StepFooter.svelte'
+  import RevisionBanner from './components/project/RevisionBanner.svelte'
   import Dashboard from './steps/Dashboard.svelte'
   import ProjectSaya from './steps/ProjectSaya.svelte'
   import BankInformasi from './steps/BankInformasi.svelte'
@@ -31,31 +35,13 @@
   // A workflow step belongs to the Project Saya section of the sidebar
   let section = $derived(flow.view === 'project' ? 'projects' : flow.view)
 
-  // The journalist's approvals are named on the button, so it is clear what "Lanjut" means at each step
-  const nextLabel = { '2': 'Buat script →', '3': 'Setujui script →', '4': 'Kirim ke QC →' }
-
-  // Per-step gate for the "Lanjut" button. Returns null when the journalist may continue.
-  let blocked = $derived.by(() => {
-    if (stepId === '1') {
-      if (Object.values(flow.sensitivity).some((v) => !v)) return 'Beri label Publik atau Sensitif untuk semua bahan.'
-      if (flow.uploads.some((u) => u.status === 'proses')) return 'Tunggu AI selesai memproses bahan.'
-    }
-    if (stepId === '2' && flow.brief.formats.length === 0) return 'Pilih minimal satu format.'
-    if (stepId === '3') {
-      if (!flow.scriptReady) return 'Tunggu AI selesai menyusun script.'
-      const open = script.filter((l) => !flow.decisions[l.id]).length
-      if (open > 0) return `${open} paragraf belum diputuskan.`
-    }
-    if (stepId === '4' && (flow.generating || Object.values(flow.regenerating).some(Boolean)))
-      return 'Tunggu proses generate selesai.'
-    if (stepId === '5' && !flow.approved) return 'Setujui atau minta revisi dulu.'
-    return null
-  })
-
+  let blocked = $derived(stepGate(stepId))
   let isLast = $derived(flow.step === steps.length - 1)
-  let revisionHere = $derived(
-    flow.revision && revisionRoutes.find((r) => r.id === flow.revision.type).target === stepId ? flow.revision : null,
-  )
+  // A QC revision is shown on the step that owns the problem
+  let revisionHere = $derived.by(() => {
+    const route = flow.revision && revisionRoutes.find((r) => r.id === flow.revision.type)
+    return route?.target === stepId ? { type: route.label, note: flow.revision.note } : null
+  })
 </script>
 
 <div class="banner">DATA DUMMY. Semua nama, tempat, angka dan kutipan di demo ini fiktif. AI-nya disimulasikan.</div>
@@ -80,51 +66,24 @@
         <Page />
       </main>
     {:else}
-      <header>
-        <div class="title">
-          <div>
-            <h1>{story.title}</h1>
-            <p class="muted small">Project liputan · tenggat {story.deadline}</p>
-          </div>
-          <StatusChip status={contentStatus()} />
-        </div>
-
-        <ol class="stepper">
-          {#each steps as s, i (s.id)}
-            <li>
-              <button
-                class:current={i === flow.step}
-                class:done={i < flow.furthest && i !== flow.step}
-                disabled={i > flow.furthest || (s.id === '6' && !flow.approved)}
-                onclick={() => goTo(i)}
-              >
-                {s.id}. {s.label}
-              </button>
-            </li>
-          {/each}
-        </ol>
+      <header class="project">
+        <ProjectHeader title={story.title} desk={story.desk} deadline={story.deadline} status={contentStatus()} />
+        <Stepper />
       </header>
 
       <main>
-        {#if revisionHere}
-          <div class="revision">
-            <strong>Revisi dari QC Editorial ({revisionRoutes.find((r) => r.id === revisionHere.type).label}):</strong>
-            {revisionHere.note}
-            <span class="small muted">Bagian lain yang sudah disetujui tetap dipertahankan.</span>
-          </div>
-        {/if}
+        {#if revisionHere}<RevisionBanner {...revisionHere} />{/if}
         <Screen />
       </main>
 
-      <footer>
-        <button onclick={() => goTo(flow.step - 1)} disabled={flow.step === 0}>← Kembali</button>
-        <div class="next">
-          {#if blocked}<span class="muted small">{blocked}</span>{/if}
-          {#if !isLast}
-            <button class="primary" disabled={!!blocked} onclick={next}>{nextLabel[stepId] ?? 'Lanjut →'}</button>
-          {/if}
-        </div>
-      </footer>
+      <StepFooter
+        canBack={flow.step > 0}
+        onback={() => goTo(flow.step - 1)}
+        onnext={next}
+        nextLabel={nextLabel[stepId] ?? 'Lanjut →'}
+        {blocked}
+        {isLast}
+      />
     {/if}
   </div>
 </div>
@@ -193,63 +152,17 @@
     flex-direction: column;
   }
 
-  header,
-  main,
-  footer {
+  header.project,
+  main {
     padding-left: 22px;
     padding-right: 22px;
   }
 
-  header {
+  header.project {
     padding-top: 18px;
-  }
-
-  .title {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  h1 {
-    font-size: 20px;
-    margin-bottom: 2px;
-  }
-
-  .stepper {
-    list-style: none;
-    padding: 0;
-    margin: 14px 0;
-    display: flex;
-    overflow-x: auto;
-  }
-
-  .stepper li {
-    flex: 1;
-    min-width: 110px;
-    margin-left: -1.5px;
-  }
-
-  .stepper li:first-child {
-    margin-left: 0;
-  }
-
-  .stepper button {
-    width: 100%;
-    font-size: 12px;
-    padding: 6px 8px;
-    white-space: nowrap;
-  }
-
-  .stepper button.current {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: var(--on-solid);
-    font-weight: 600;
-  }
-
-  .stepper button.done::before {
-    content: '✓ ';
+    padding-bottom: 18px;
+    display: grid;
+    gap: 14px;
   }
 
   main {
@@ -259,33 +172,6 @@
 
   main.page {
     padding-top: 18px;
-  }
-
-  .revision {
-    border: 1.5px dashed var(--border);
-    background: var(--kuning-bg);
-    padding: 10px 12px;
-    margin-bottom: 14px;
-    display: grid;
-    gap: 2px;
-  }
-
-  footer {
-    position: sticky;
-    bottom: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    background: var(--bg);
-    border-top: 1.5px solid var(--border);
-  }
-
-  .next {
-    display: flex;
-    align-items: center;
-    gap: 12px;
   }
 
   @media (max-width: 720px) {
@@ -308,9 +194,8 @@
     .hint {
       display: none;
     }
-    header,
-    main,
-    footer {
+    header.project,
+    main {
       padding-left: 14px;
       padding-right: 14px;
     }
