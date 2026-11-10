@@ -16,7 +16,7 @@ Pain point **#5 Audience & news distribution**: turn one story's material (artic
 - **Fake the AI.** Outputs are scripted in `data.js`. The demo must never depend on a live API call during the session.
 - **Human in the loop must be visible.** Every screen shows where the journalist checks, corrects or decides (prototype card field 6).
 - **Lo-fi.** Clarity over polish. No auth, no backend, no state persistence. Navigation uses the small hash router in `src/lib/router.js` (`#/`, `#/riwayat`, `#/project/3`), no router library.
-- **Don't make this repo public.** `docs/` holds internal workshop material. Deploy only the `dist/` build (Netlify Drop).
+- **The repo is public** (the owner's call, 10 Nov 2026), so anything committed is visible, including `docs/`. Only the `dist/` build is deployed, to GitHub Pages via `.github/workflows/pages.yml`.
 
 ## Tech
 

@@ -96,7 +96,7 @@ If time runs out, steps 1, 3 and 5 alone tell the story.
 
 ## Tech
 
-- **Vite + Svelte 5**, no SvelteKit, no backend. A small hash router (`src/lib/router.js`) gives each screen a URL that works on Netlify Drop, e.g. `#/project/3` to jump to step 3. Already initialised.
+- **Vite + Svelte 5**, no SvelteKit, no backend. A small hash router (`src/lib/router.js`) gives each screen a URL that works on any static host, e.g. `#/project/3` to jump to step 3. Already initialised.
 - All dummy content in **`src/lib/data.js`**, so the designer or journalists can edit text without touching components.
 - `vite.config.js` has `base: './'` so the build works from any subpath.
 
@@ -106,13 +106,11 @@ npm run dev
 
 ## Deploy (for card field 7)
 
-The repo is **private**, and GitHub Pages on a private repo needs a paid plan. The `docs/` folder holds internal workshop material, so **don't make this repo public**. Fastest option instead:
+The repo is public and the demo is hosted on **GitHub Pages**: https://raflyfahrezi.github.io/the-good-ai-workshop-labtek-indie/
 
-```bash
-npm run build
-```
+`.github/workflows/pages.yml` builds the app and publishes `dist/` on every push to `main`. The old stand-alone prototype in `public/` is left out of the site. Jump straight to a step with the hash, e.g. `.../#/project/3`.
 
-Then drag the `dist/` folder into https://app.netlify.com/drop for a public link to the demo only.
+Fallback without GitHub: run `npm run build` and drag the `dist/` folder into https://app.netlify.com/drop.
 
 ## Rules
 
