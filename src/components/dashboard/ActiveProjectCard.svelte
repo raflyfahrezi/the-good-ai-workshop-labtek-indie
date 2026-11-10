@@ -1,7 +1,8 @@
 <script>
   import StatusChip from '../../lib/StatusChip.svelte'
+  import StepRail from '../StepRail.svelte'
 
-  /** @type {{ project: ReturnType<typeof import('../../lib/dashboard.js').activeProject>, onContinue: () => void }} */
+  /** @type {{ project: ReturnType<typeof import('../../lib/projects.js').activeProject>, onContinue: () => void }} */
   let { project, onContinue } = $props()
 </script>
 
@@ -14,14 +15,7 @@
   <h3>{project.title}</h3>
   <p class="meta">Tenggat {project.deadline}</p>
 
-  <ol class="progress" aria-label="Progres alur kerja">
-    {#each project.steps as step (step.id)}
-      <li class={step.state} aria-current={step.state === 'current' ? 'step' : undefined}>
-        <span class="num">{step.id}</span>
-        <span class="label">{step.label}</span>
-      </li>
-    {/each}
-  </ol>
+  <div class="rail"><StepRail rail={project.rail} /></div>
 
   <footer>
     <div class="where">
@@ -71,40 +65,8 @@
     color: var(--muted);
   }
 
-  /* Six workflow steps as one segmented rail */
-  .progress {
-    list-style: none;
-    margin: 6px 0 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 4px;
-  }
-
-  .progress li {
-    border-top: 4px solid var(--fl);
-    padding-top: 6px;
-    display: grid;
-    gap: 2px;
-    color: var(--muted);
-  }
-
-  .progress li.done {
-    border-top-color: var(--muted);
-  }
-
-  .progress li.current {
-    border-top-color: var(--accent);
-    color: var(--text);
-  }
-
-  .num {
-    font: 600 11px/1 var(--font-mono);
-  }
-
-  .label {
-    font-size: 11px;
-    line-height: 1.25;
+  .rail {
+    margin-top: 6px;
   }
 
   footer {
@@ -135,12 +97,5 @@
 
   footer button {
     padding: 9px 16px;
-  }
-
-  @media (max-width: 560px) {
-    .progress {
-      grid-template-columns: repeat(3, 1fr);
-      row-gap: 10px;
-    }
   }
 </style>

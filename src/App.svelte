@@ -1,9 +1,10 @@
 <script>
   import { story, script } from './lib/data.js'
   import { flow, steps, goTo, next, contentStatus, revisionRoutes } from './lib/flow.svelte.js'
-  import { hrefFor, hrefForStep } from './lib/router.js'
+  import { hrefFor } from './lib/router.js'
   import StatusChip from './lib/StatusChip.svelte'
   import Dashboard from './steps/Dashboard.svelte'
+  import ProjectSaya from './steps/ProjectSaya.svelte'
   import BankInformasi from './steps/BankInformasi.svelte'
   import Brief from './steps/Brief.svelte'
   import Verifikasi from './steps/Verifikasi.svelte'
@@ -21,12 +22,14 @@
   // PRD information architecture, laid out as the sidebar in the team's wireframe
   const nav = [
     { view: 'dashboard', label: 'Dashboard', page: Dashboard },
-    { view: 'project', label: 'Project Saya' },
+    { view: 'projects', label: 'Project Saya', page: ProjectSaya },
     { view: 'history', label: 'Riwayat Konten', page: Riwayat },
     { view: 'guidelines', label: 'Guideline Saya', page: Guideline },
     { view: 'settings', label: 'Pengaturan', page: Pengaturan },
   ]
-  let Page = $derived(nav.find((n) => n.view === flow.view).page)
+  let Page = $derived(nav.find((n) => n.view === flow.view)?.page)
+  // A workflow step belongs to the Project Saya section of the sidebar
+  let section = $derived(flow.view === 'project' ? 'projects' : flow.view)
 
   // The journalist's approvals are named on the button, so it is clear what "Lanjut" means at each step
   const nextLabel = { '2': 'Buat script →', '3': 'Setujui script →', '4': 'Kirim ke QC →' }
@@ -63,9 +66,9 @@
     {#each nav as n (n.view)}
       <a
         class="navlink"
-        class:on={flow.view === n.view}
-        aria-current={flow.view === n.view ? 'page' : undefined}
-        href={n.view === 'project' ? hrefForStep(stepId) : hrefFor(n.view)}>{n.label}</a
+        class:on={section === n.view}
+        aria-current={section === n.view ? 'page' : undefined}
+        href={hrefFor(n.view)}>{n.label}</a
       >
     {/each}
     <p class="small muted hint">Low-fidelity · asisten AI untuk jurnalis</p>

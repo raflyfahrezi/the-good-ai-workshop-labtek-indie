@@ -1,8 +1,11 @@
 <script>
   // Dashboard page: composes the dashboard components. Numbers come from lib/dashboard.js.
-  import { journalist, recentProjects, story } from '../lib/data.js'
+  import { journalist, story } from '../lib/data.js'
   import { flow, goTo, openView } from '../lib/flow.svelte.js'
-  import { activeProject, dashboardStats } from '../lib/dashboard.js'
+  import { hrefFor } from '../lib/router.js'
+  import { activeProject, dashboardStats, recentProjects } from '../lib/dashboard.js'
+  import PageHeader from '../components/PageHeader.svelte'
+  import HumanNote from '../components/HumanNote.svelte'
   import StatStrip from '../components/dashboard/StatStrip.svelte'
   import ActiveProjectCard from '../components/dashboard/ActiveProjectCard.svelte'
   import ActivityFeed from '../components/dashboard/ActivityFeed.svelte'
@@ -20,19 +23,16 @@
 </script>
 
 <div class="dashboard">
-  <header class="masthead">
-    <p class="kicker">Meja kerja · {story.newsroom}</p>
-    <h2>Halo, {journalist.name}.</h2>
-    <p class="lede">Semua liputan dan konten turunannya ada di satu tempat. Lanjutkan dari langkah terakhir.</p>
-  </header>
+  <PageHeader
+    kicker="Meja kerja · {story.newsroom}"
+    title="Halo, {journalist.name}."
+    lede="Semua liputan dan konten turunannya ada di satu tempat. Lanjutkan dari langkah terakhir."
+  />
 
-  <aside class="human-note">
-    <span class="tag">Keputusan jurnalis</span>
-    <p>
-      Status konten hanya berubah menjadi <strong>Disetujui</strong> setelah jurnalis menyetujuinya di QC Editorial. AI
-      tidak pernah menyetujui sendiri.
-    </p>
-  </aside>
+  <HumanNote>
+    Status konten hanya berubah menjadi <strong>Disetujui</strong> setelah jurnalis menyetujuinya di QC Editorial. AI tidak
+    pernah menyetujui sendiri.
+  </HumanNote>
 
   <StatStrip {stats} />
 
@@ -44,7 +44,7 @@
     </div>
   </div>
 
-  <ProjectTable projects={recentProjects} />
+  <ProjectTable projects={recentProjects()} moreHref={hrefFor('projects')} />
 </div>
 
 <style>
@@ -84,51 +84,6 @@
     }
   }
 
-  .masthead {
-    display: grid;
-    gap: 6px;
-    padding-bottom: 16px;
-    border-bottom: 1.5px solid var(--border);
-  }
-
-  .kicker {
-    font: 400 11px/1 var(--font-mono);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--muted);
-  }
-
-  h2 {
-    font: 500 40px/1.05 var(--font-display);
-    letter-spacing: -0.8px;
-  }
-
-  .lede {
-    color: var(--muted);
-    font-size: 15px;
-    max-width: 60ch;
-  }
-
-  /* Human-in-the-loop callout, kept visible on every screen */
-  .human-note {
-    display: flex;
-    align-items: baseline;
-    gap: 12px;
-    border: 1.5px dashed var(--border);
-    padding: 10px 14px;
-    font-size: 13px;
-  }
-
-  .tag {
-    flex: none;
-    font: 600 10px/1 var(--font-mono);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    background: var(--accent);
-    color: var(--on-solid);
-    padding: 4px 6px;
-  }
-
   .cols {
     display: grid;
     grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
@@ -144,16 +99,6 @@
   @media (max-width: 900px) {
     .cols {
       grid-template-columns: 1fr;
-    }
-  }
-
-  @media (max-width: 560px) {
-    h2 {
-      font-size: 32px;
-    }
-    .human-note {
-      flex-direction: column;
-      gap: 6px;
     }
   }
 </style>

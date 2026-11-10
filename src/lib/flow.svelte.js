@@ -33,7 +33,7 @@ export const revisionRoutes = [
 const allItems = [...bank.karyaUtama, ...bank.dataMentah]
 
 export const flow = $state({
-  view: 'dashboard', // 'dashboard' | 'history' | 'guidelines' | 'settings' | 'project', mirrored in the URL hash
+  view: 'dashboard', // 'dashboard' | 'projects' | 'history' | 'guidelines' | 'settings' | 'project' (a workflow step), mirrored in the URL hash
   step: 0,
   furthest: 0,
   // Sensitivity is the journalist's call, so it is editable state seeded from data.js
@@ -77,7 +77,7 @@ function showStep(index) {
   window.scrollTo({ top: 0 })
 }
 
-// Open a sidebar page that is not the project flow ('dashboard' | 'history' | 'guidelines' | 'settings')
+// Open a sidebar page that is not the project flow (any key of pages in router.js)
 export function openView(view) {
   showView(view)
   setHash(hrefFor(view))

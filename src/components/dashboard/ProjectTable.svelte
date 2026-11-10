@@ -1,12 +1,15 @@
 <script>
   import StatusChip from '../../lib/StatusChip.svelte'
 
-  /** @type {{ projects: { title: string, formats: string, updated: string, status: string }[] }} */
-  let { projects } = $props()
+  /** @type {{ projects: { title: string, formats: string, updated: string, status: string }[], moreHref?: string }} */
+  let { projects, moreHref } = $props()
 </script>
 
 <section>
-  <h3>Project lain</h3>
+  <div class="head">
+    <h3>Project lain</h3>
+    {#if moreHref}<a href={moreHref}>Lihat semua project →</a>{/if}
+  </div>
   <div class="wrap">
     <table>
       <thead>
@@ -30,6 +33,17 @@
   section {
     display: grid;
     gap: 10px;
+  }
+
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .head a {
+    font-size: 13px;
+    color: var(--text);
   }
 
   h3 {

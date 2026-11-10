@@ -5,6 +5,7 @@
 // Sidebar pages that are not part of the project flow
 export const pages = {
   dashboard: '/',
+  projects: '/project',
   history: '/riwayat',
   guidelines: '/guideline',
   settings: '/pengaturan',

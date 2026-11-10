@@ -6,6 +6,7 @@ export const story = {
   title: 'Sungai Cilayung Berubah Warna, Warga Mekarwangi Kehilangan Air Bersih',
   author: 'Faris Zakaria (persona fiktif)',
   newsroom: 'Redaksi Contoh',
+  desk: 'Lingkungan',
   deadline: 'Kamis, 5 Nov 2026, 17.00',
   deadlineRelative: 'Besok', // the demo is presented the day before the deadline
 }
@@ -13,10 +14,64 @@ export const story = {
 // The signed-in journalist (fictional persona from the Phase 1 research)
 export const journalist = { name: 'Faris' }
 
-// Dashboard: other projects of the same journalist. Display only.
-export const recentProjects = [
-  { title: 'Harga Cabai Naik Jelang Musim Hujan', status: 'Diekspor', formats: 'Image Slides', updated: '28 Okt 2026' },
-  { title: 'Sekolah Darurat di Lereng Gunung Sirna', status: 'Draf', formats: 'Video Reels', updated: '2 Nov 2026' },
+// Project Saya and Dashboard: other projects of the same journalist. Display only, all fictional.
+// Newest first. step is the index of the furthest workflow step reached; note is the next human decision.
+export const otherProjects = [
+  {
+    id: 'puskesmas',
+    title: 'Antrean Pasien Mengular di Puskesmas Tanjungsari Hilir',
+    desk: 'Kesehatan',
+    formats: 'Image Slides, Audio',
+    status: 'Perlu Review',
+    step: 4,
+    updated: '3 Nov 2026',
+    deadline: 'Jumat, 6 Nov 2026',
+    note: 'Menunggu persetujuan jurnalis di QC Editorial. 2 flag auto QC terbuka.',
+  },
+  {
+    id: 'jembatan',
+    title: 'Jembatan Gantung Desa Karangwaru Belum Juga Diperbaiki',
+    desk: 'Infrastruktur',
+    formats: 'Video Reels',
+    status: 'Revisi',
+    step: 2,
+    updated: '3 Nov 2026',
+    deadline: 'Senin, 9 Nov 2026',
+    note: 'Dikembalikan jurnalis ke Script & Sumber: kutipan kepala desa perlu dicek ulang.',
+  },
+  {
+    id: 'sekolah',
+    title: 'Sekolah Darurat di Lereng Gunung Sirna',
+    desk: 'Pendidikan',
+    formats: 'Video Reels',
+    status: 'Draf',
+    step: 1,
+    updated: '2 Nov 2026',
+    deadline: 'Rabu, 11 Nov 2026',
+    note: 'Brief belum dikirim. Guideline belum dipilih.',
+  },
+  {
+    id: 'pasar',
+    title: 'Pasar Kalibening Sepi Setelah Relokasi',
+    desk: 'Ekonomi',
+    formats: 'Audio',
+    status: 'Disetujui',
+    step: 5,
+    updated: '30 Okt 2026',
+    deadline: 'Selasa, 10 Nov 2026',
+    note: 'Disetujui jurnalis. Tinggal ekspor dan cek credit foto.',
+  },
+  {
+    id: 'cabai',
+    title: 'Harga Cabai Naik Jelang Musim Hujan',
+    desk: 'Ekonomi',
+    formats: 'Image Slides',
+    status: 'Diekspor',
+    step: 5,
+    updated: '28 Okt 2026',
+    deadline: 'Selesai',
+    note: 'Diekspor dengan Jejak Sumber untuk editor.',
+  },
 ]
 
 // Riwayat Konten: earlier exports from other projects. Display only.
